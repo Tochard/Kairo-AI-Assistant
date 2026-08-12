@@ -17,13 +17,16 @@ enum TaskStatus: string
         };
     }
 
-    public function color(): string
+    /**
+     * Tailwind classes for a status pill — hand-styled, no Flux badge component.
+     */
+    public function badgeClasses(): string
     {
         return match ($this) {
-            self::Pending => 'zinc',
-            self::Done => 'teal',
+            self::Pending => 'bg-zinc-500/10 text-zinc-500 dark:text-zinc-400 border border-zinc-500/20',
+            self::Done => 'bg-teal/10 text-teal border border-teal/20',
             // Muted, not alarming — Kairo never uses red for a routine miss.
-            self::Missed => 'zinc',
+            self::Missed => 'bg-zinc-500/10 text-zinc-500 dark:text-zinc-400 border border-zinc-500/20',
         };
     }
 }

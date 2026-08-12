@@ -51,44 +51,81 @@ new #[Layout('layouts::app')] class extends Component
 
 <div class="flex flex-col gap-6">
     <div>
-        <flux:heading size="xl">New task</flux:heading>
-        <flux:text class="mt-1 text-ink-muted">What's the next small step?</flux:text>
+        <h1 class="text-2xl font-bold tracking-tight text-ink">New task</h1>
+        <p class="mt-1 text-ink-muted">What's the next small step?</p>
     </div>
 
-    <form wire:submit="save" class="flex flex-col gap-4">
-        <flux:field>
-            <flux:label>Title</flux:label>
-            <flux:input wire:model="title" autofocus />
-            <flux:error name="title" />
-        </flux:field>
+    <form wire:submit="save" class="flex flex-col gap-5">
+        <div>
+            <label for="title" class="mb-1.5 block text-sm font-medium text-ink">Title</label>
+            <input
+                wire:model="title"
+                id="title"
+                type="text"
+                autofocus
+                class="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-ink placeholder:text-ink-muted focus:border-teal focus:ring-2 focus:ring-teal/30 focus:outline-none transition"
+            >
+            @error('title')
+                <p class="mt-1.5 text-sm text-red-400">{{ $message }}</p>
+            @enderror
+        </div>
 
-        <flux:field>
-            <flux:label>Due date (optional)</flux:label>
-            <flux:input wire:model="due_date" type="date" />
-            <flux:error name="due_date" />
-        </flux:field>
+        <div>
+            <label for="due_date" class="mb-1.5 block text-sm font-medium text-ink">Due date (optional)</label>
+            <input
+                wire:model="due_date"
+                id="due_date"
+                type="date"
+                class="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-ink placeholder:text-ink-muted focus:border-teal focus:ring-2 focus:ring-teal/30 focus:outline-none transition"
+            >
+            @error('due_date')
+                <p class="mt-1.5 text-sm text-red-400">{{ $message }}</p>
+            @enderror
+        </div>
 
         @if ($goals->isNotEmpty())
-            <flux:field>
-                <flux:label>Linked goal (optional)</flux:label>
-                <flux:select wire:model="goal_id" placeholder="No goal">
+            <div>
+                <label for="goal_id" class="mb-1.5 block text-sm font-medium text-ink">Linked goal (optional)</label>
+                <select
+                    wire:model="goal_id"
+                    id="goal_id"
+                    class="w-full cursor-pointer rounded-xl border border-border bg-surface px-4 py-2.5 text-ink focus:border-teal focus:ring-2 focus:ring-teal/30 focus:outline-none transition"
+                >
+                    <option value="">No goal</option>
                     @foreach ($goals as $goal)
-                        <flux:select.option value="{{ $goal->id }}">{{ $goal->title }}</flux:select.option>
+                        <option value="{{ $goal->id }}">{{ $goal->title }}</option>
                     @endforeach
-                </flux:select>
-                <flux:error name="goal_id" />
-            </flux:field>
+                </select>
+                @error('goal_id')
+                    <p class="mt-1.5 text-sm text-red-400">{{ $message }}</p>
+                @enderror
+            </div>
         @endif
 
-        <flux:field>
-            <flux:label>Recurrence (optional)</flux:label>
-            <flux:input wire:model="recurrence_rule" placeholder="e.g. daily, weekly" />
-            <flux:error name="recurrence_rule" />
-        </flux:field>
+        <div>
+            <label for="recurrence_rule" class="mb-1.5 block text-sm font-medium text-ink">Recurrence (optional)</label>
+            <input
+                wire:model="recurrence_rule"
+                id="recurrence_rule"
+                type="text"
+                placeholder="e.g. daily, weekly"
+                class="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-ink placeholder:text-ink-muted focus:border-teal focus:ring-2 focus:ring-teal/30 focus:outline-none transition"
+            >
+            @error('recurrence_rule')
+                <p class="mt-1.5 text-sm text-red-400">{{ $message }}</p>
+            @enderror
+        </div>
 
         <div class="mt-2 flex items-center gap-3">
-            <flux:button type="submit" variant="primary">Save task</flux:button>
-            <flux:button href="{{ route('tasks.index') }}" wire:navigate variant="ghost">Cancel</flux:button>
+            <button
+                type="submit"
+                class="cursor-pointer rounded-xl bg-accent px-4 py-2.5 font-semibold text-accent-foreground shadow-lg shadow-teal/20 transition hover:brightness-110 hover:shadow-teal/40"
+            >
+                Save task
+            </button>
+            <a href="{{ route('tasks.index') }}" wire:navigate class="rounded-xl px-4 py-2.5 font-semibold text-ink-muted transition hover:bg-surface-muted hover:text-ink">
+                Cancel
+            </a>
         </div>
     </form>
 </div>

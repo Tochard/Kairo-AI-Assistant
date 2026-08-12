@@ -48,19 +48,28 @@ new #[Layout('layouts::app')] class extends Component
 
 <div class="flex flex-col gap-6">
     <div class="flex items-center justify-between">
-        <flux:heading size="xl">Tasks</flux:heading>
-        <flux:button href="{{ route('tasks.create') }}" wire:navigate variant="primary" icon="plus">New task</flux:button>
+        <h1 class="text-2xl font-bold tracking-tight text-ink">Tasks</h1>
+        <a
+            href="{{ route('tasks.create') }}"
+            wire:navigate
+            class="flex cursor-pointer items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground shadow-lg shadow-teal/20 transition hover:brightness-110 hover:shadow-teal/40"
+        >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="size-4">
+                <path d="M12 5v14M5 12h14" />
+            </svg>
+            New task
+        </a>
     </div>
 
     @if ($overdue->isEmpty() && $today->isEmpty() && $upcoming->isEmpty() && $missed->isEmpty() && $done->isEmpty())
         <div class="rounded-3xl border border-dashed border-border bg-surface p-8 text-center">
-            <flux:text class="text-ink-muted">No tasks yet — what's the next small step?</flux:text>
+            <p class="text-ink-muted">No tasks yet — what's the next small step?</p>
         </div>
     @else
         @foreach (['Overdue' => $overdue, 'Today' => $today, 'Upcoming' => $upcoming, 'Missed' => $missed, 'Done' => $done] as $label => $group)
             @if ($group->isNotEmpty())
                 <div class="flex flex-col gap-3">
-                    <flux:text class="text-xs font-semibold tracking-wide text-ink-muted uppercase">{{ $label }}</flux:text>
+                    <p class="text-xs font-semibold tracking-wide text-ink-muted uppercase">{{ $label }}</p>
 
                     @foreach ($group as $task)
                         <div wire:key="task-{{ $task->id }}" class="flex items-center gap-3 rounded-2xl border border-border bg-surface p-4">
@@ -68,9 +77,11 @@ new #[Layout('layouts::app')] class extends Component
                                 type="button"
                                 wire:click="toggleDone({{ $task->id }})"
                                 aria-label="{{ $task->status === \App\Enums\TaskStatus::Done ? 'Mark as pending' : 'Mark as done' }}"
-                                class="flex size-6 shrink-0 items-center justify-center rounded-full border-2 {{ $task->status === \App\Enums\TaskStatus::Done ? 'border-teal bg-teal text-white' : 'border-border text-transparent' }}"
+                                class="flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 transition {{ $task->status === \App\Enums\TaskStatus::Done ? 'border-teal bg-teal text-white' : 'border-border text-transparent hover:border-teal' }}"
                             >
-                                <flux:icon name="check" class="size-4" />
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="size-3.5">
+                                    <path d="M20 6 9 17l-5-5" />
+                                </svg>
                             </button>
 
                             <div class="min-w-0 flex-1">
@@ -82,19 +93,26 @@ new #[Layout('layouts::app')] class extends Component
                                         <span>{{ $task->due_date->format('M j, Y') }}</span>
                                     @endif
                                     @if ($task->goal)
-                                        <flux:badge size="sm" color="teal">{{ $task->goal->title }}</flux:badge>
+                                        <span class="rounded-full border border-teal/20 bg-teal/10 px-2 py-0.5 text-xs font-medium text-teal">
+                                            {{ $task->goal->title }}
+                                        </span>
                                     @endif
                                 </div>
                             </div>
 
-                            <flux:button
-                                size="sm"
-                                variant="ghost"
-                                icon="trash"
+                            <button
+                                type="button"
                                 wire:click="delete({{ $task->id }})"
                                 wire:confirm="Delete this task? This can't be undone."
                                 aria-label="Delete {{ $task->title }}"
-                            />
+                                class="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-muted transition hover:bg-surface-muted hover:text-ink"
+                            >
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-4">
+                                    <path d="M4 7h16" />
+                                    <path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13" />
+                                    <path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3" />
+                                </svg>
+                            </button>
                         </div>
                     @endforeach
                 </div>

@@ -74,62 +74,110 @@ new #[Layout('layouts::app')] class extends Component
 ?>
 
 <div class="flex flex-col gap-6">
-    <flux:heading size="xl">Edit task</flux:heading>
+    <h1 class="text-2xl font-bold tracking-tight text-ink">Edit task</h1>
 
-    <form wire:submit="save" class="flex flex-col gap-4">
-        <flux:field>
-            <flux:label>Title</flux:label>
-            <flux:input wire:model="title" autofocus />
-            <flux:error name="title" />
-        </flux:field>
+    <form wire:submit="save" class="flex flex-col gap-5">
+        <div>
+            <label for="title" class="mb-1.5 block text-sm font-medium text-ink">Title</label>
+            <input
+                wire:model="title"
+                id="title"
+                type="text"
+                autofocus
+                class="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-ink placeholder:text-ink-muted focus:border-teal focus:ring-2 focus:ring-teal/30 focus:outline-none transition"
+            >
+            @error('title')
+                <p class="mt-1.5 text-sm text-red-400">{{ $message }}</p>
+            @enderror
+        </div>
 
-        <flux:field>
-            <flux:label>Due date (optional)</flux:label>
-            <flux:input wire:model="due_date" type="date" />
-            <flux:error name="due_date" />
-        </flux:field>
+        <div>
+            <label for="due_date" class="mb-1.5 block text-sm font-medium text-ink">Due date (optional)</label>
+            <input
+                wire:model="due_date"
+                id="due_date"
+                type="date"
+                class="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-ink placeholder:text-ink-muted focus:border-teal focus:ring-2 focus:ring-teal/30 focus:outline-none transition"
+            >
+            @error('due_date')
+                <p class="mt-1.5 text-sm text-red-400">{{ $message }}</p>
+            @enderror
+        </div>
 
         @if ($goals->isNotEmpty())
-            <flux:field>
-                <flux:label>Linked goal (optional)</flux:label>
-                <flux:select wire:model="goal_id" placeholder="No goal">
+            <div>
+                <label for="goal_id" class="mb-1.5 block text-sm font-medium text-ink">Linked goal (optional)</label>
+                <select
+                    wire:model="goal_id"
+                    id="goal_id"
+                    class="w-full cursor-pointer rounded-xl border border-border bg-surface px-4 py-2.5 text-ink focus:border-teal focus:ring-2 focus:ring-teal/30 focus:outline-none transition"
+                >
+                    <option value="">No goal</option>
                     @foreach ($goals as $goal)
-                        <flux:select.option value="{{ $goal->id }}">{{ $goal->title }}</flux:select.option>
+                        <option value="{{ $goal->id }}">{{ $goal->title }}</option>
                     @endforeach
-                </flux:select>
-                <flux:error name="goal_id" />
-            </flux:field>
+                </select>
+                @error('goal_id')
+                    <p class="mt-1.5 text-sm text-red-400">{{ $message }}</p>
+                @enderror
+            </div>
         @endif
 
-        <flux:field>
-            <flux:label>Recurrence (optional)</flux:label>
-            <flux:input wire:model="recurrence_rule" placeholder="e.g. daily, weekly" />
-            <flux:error name="recurrence_rule" />
-        </flux:field>
+        <div>
+            <label for="recurrence_rule" class="mb-1.5 block text-sm font-medium text-ink">Recurrence (optional)</label>
+            <input
+                wire:model="recurrence_rule"
+                id="recurrence_rule"
+                type="text"
+                placeholder="e.g. daily, weekly"
+                class="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-ink placeholder:text-ink-muted focus:border-teal focus:ring-2 focus:ring-teal/30 focus:outline-none transition"
+            >
+            @error('recurrence_rule')
+                <p class="mt-1.5 text-sm text-red-400">{{ $message }}</p>
+            @enderror
+        </div>
 
-        <flux:field>
-            <flux:label>Status</flux:label>
-            <flux:select wire:model="status">
+        <div>
+            <label for="status" class="mb-1.5 block text-sm font-medium text-ink">Status</label>
+            <select
+                wire:model="status"
+                id="status"
+                class="w-full cursor-pointer rounded-xl border border-border bg-surface px-4 py-2.5 text-ink focus:border-teal focus:ring-2 focus:ring-teal/30 focus:outline-none transition"
+            >
                 @foreach (TaskStatus::cases() as $case)
-                    <flux:select.option value="{{ $case->value }}">{{ $case->label() }}</flux:select.option>
+                    <option value="{{ $case->value }}">{{ $case->label() }}</option>
                 @endforeach
-            </flux:select>
-            <flux:error name="status" />
-        </flux:field>
+            </select>
+            @error('status')
+                <p class="mt-1.5 text-sm text-red-400">{{ $message }}</p>
+            @enderror
+        </div>
 
         <div class="mt-2 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <flux:button type="submit" variant="primary">Save changes</flux:button>
-                <flux:button href="{{ route('tasks.index') }}" wire:navigate variant="ghost">Cancel</flux:button>
+                <button
+                    type="submit"
+                    class="cursor-pointer rounded-xl bg-accent px-4 py-2.5 font-semibold text-accent-foreground shadow-lg shadow-teal/20 transition hover:brightness-110 hover:shadow-teal/40"
+                >
+                    Save changes
+                </button>
+                <a href="{{ route('tasks.index') }}" wire:navigate class="rounded-xl px-4 py-2.5 font-semibold text-ink-muted transition hover:bg-surface-muted hover:text-ink">
+                    Cancel
+                </a>
             </div>
-            <flux:button
-                variant="ghost"
-                icon="trash"
+            <button
+                type="button"
                 wire:click="delete"
                 wire:confirm="Delete this task? This can't be undone."
+                class="flex cursor-pointer items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold text-ink-muted transition hover:bg-surface-muted hover:text-ink"
             >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-4">
+                    <path d="M4 7h16" />
+                    <path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13" />
+                    <path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3" />
+                </svg>
                 Delete
-            </flux:button>
+            </button>
         </div>
     </form>
 </div>
