@@ -8,9 +8,8 @@
             href="{{ route('chat', $conv) }}"
             wire:navigate
             class="flex min-h-11 flex-1 items-center truncate rounded-lg px-3 py-2 text-sm {{ $active ? 'bg-surface-muted text-ink font-medium' : 'text-ink-muted hover:bg-surface-muted hover:text-ink' }}"
-        >
-            {{ $conv->title }}
-        </a>
+            x-text="title"
+        ></a>
     </template>
 
     <template x-if="editing">
