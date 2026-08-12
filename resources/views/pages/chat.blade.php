@@ -103,9 +103,9 @@ new #[Layout('layouts::app')] class extends Component
 };
 ?>
 
-<div class="flex items-start gap-6" x-data="chatPage()">
+<div class="flex h-full items-stretch gap-6 px-4 pt-4 pb-2 md:px-6 md:pb-4" x-data="chatPage()">
     {{-- Desktop history sidebar --}}
-    <aside class="sticky top-20 hidden w-56 shrink-0 flex-col gap-1 md:flex">
+    <aside class="hidden h-full w-56 shrink-0 flex-col gap-1 overflow-y-auto md:flex">
         <a
             href="{{ route('chat') }}"
             wire:navigate
@@ -117,7 +117,7 @@ new #[Layout('layouts::app')] class extends Component
             New chat
         </a>
 
-        <div class="flex flex-col gap-0.5 overflow-y-auto">
+        <div class="flex flex-col gap-0.5">
             @foreach ($conversations as $conv)
                 <a
                     href="{{ route('chat', $conv) }}"
@@ -167,11 +167,8 @@ new #[Layout('layouts::app')] class extends Component
     </div>
 
     {{-- Main chat column --}}
-    <div
-        class="flex min-w-0 flex-1 flex-col gap-4"
-        x-init="$nextTick(() => window.scrollTo(0, document.body.scrollHeight))"
-    >
-        <div class="flex items-center justify-between">
+    <div class="flex h-full min-w-0 flex-1 flex-col gap-3">
+        <div class="flex shrink-0 items-center justify-between">
             <div>
                 <h1 class="text-2xl font-bold tracking-tight text-ink">Kairo</h1>
                 <p class="mt-1 text-sm text-ink-muted">Tell me what you're working toward.</p>
@@ -193,7 +190,7 @@ new #[Layout('layouts::app')] class extends Component
             x-show="speaking"
             x-cloak
             x-on:click="stopSpeaking()"
-            class="flex cursor-pointer items-center gap-2 self-start rounded-full border border-teal/30 bg-teal/10 px-3 py-1.5 text-xs font-medium text-teal animate-pulse"
+            class="flex shrink-0 cursor-pointer items-center gap-2 self-start rounded-full border border-teal/30 bg-teal/10 px-3 py-1.5 text-xs font-medium text-teal animate-pulse"
         >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-3.5">
                 <path d="M4 9v6h4l5 4V5L8 9H4Z" />
@@ -203,7 +200,8 @@ new #[Layout('layouts::app')] class extends Component
             Kairo is speaking — tap to stop
         </div>
 
-        <div class="flex flex-col gap-3">
+        {{-- Scrollable message area --}}
+        <div x-ref="messageList" class="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
             @if ($messages->isEmpty())
                 <div x-show="pending.length === 0" class="rounded-3xl border border-dashed border-border bg-surface p-8 text-center">
                     <p class="text-ink-muted">Hey, I'm Kairo 👋 Tell me something you're working toward, and I'll help you plan it out.</p>
@@ -244,10 +242,10 @@ new #[Layout('layouts::app')] class extends Component
         </div>
 
         @if ($error)
-            <p class="text-sm text-red-400">{{ $error }}</p>
+            <p class="shrink-0 text-sm text-red-400">{{ $error }}</p>
         @endif
 
-        <div x-show="listening" x-cloak class="flex items-center gap-1.5 self-start text-xs font-medium text-teal">
+        <div x-show="listening" x-cloak class="flex shrink-0 items-center gap-1.5 self-start text-xs font-medium text-teal">
             <span class="relative flex size-2">
                 <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal opacity-75"></span>
                 <span class="relative inline-flex size-2 rounded-full bg-teal"></span>
@@ -255,7 +253,8 @@ new #[Layout('layouts::app')] class extends Component
             Listening…
         </div>
 
-        <form x-on:submit.prevent="submit()" class="sticky bottom-20 z-20 flex items-center gap-2 md:bottom-6">
+        {{-- Input, pinned at the bottom of the chat column --}}
+        <form x-on:submit.prevent="submit()" class="mb-16 flex shrink-0 items-center gap-2 md:mb-0">
             <input
                 x-ref="input"
                 type="text"

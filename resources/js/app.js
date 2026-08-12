@@ -57,6 +57,8 @@ document.addEventListener('alpine:init', () => {
         recognition: null,
 
         init() {
+            this.$nextTick(() => this.scrollToBottom());
+
             if (!this.voiceSupported) return;
 
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -124,6 +126,12 @@ document.addEventListener('alpine:init', () => {
                 .trim();
         },
 
+        scrollToBottom() {
+            if (this.$refs.messageList) {
+                this.$refs.messageList.scrollTop = this.$refs.messageList.scrollHeight;
+            }
+        },
+
         submit() {
             const text = this.$refs.input.value.trim();
             if (!text || this.pending.length > 0) return;
@@ -135,7 +143,7 @@ document.addEventListener('alpine:init', () => {
             this.$refs.input.value = '';
             this.lastInputWasVoice = false;
 
-            this.$nextTick(() => window.scrollTo(0, document.body.scrollHeight));
+            this.$nextTick(() => this.scrollToBottom());
 
             this.$wire.send(text).then((result) => {
                 this.pending = this.pending.filter((p) => p.id !== id);
@@ -144,7 +152,7 @@ document.addEventListener('alpine:init', () => {
                     window.history.replaceState({}, '', '/chat/' + result.conversationId);
                 }
 
-                this.$nextTick(() => window.scrollTo(0, document.body.scrollHeight));
+                this.$nextTick(() => this.scrollToBottom());
 
                 if (wasVoice && result.text) {
                     this.speak(result.text);

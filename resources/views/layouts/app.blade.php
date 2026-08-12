@@ -20,7 +20,7 @@
         </script>
         @fluxAppearance
     </head>
-    <body class="relative flex h-full min-h-screen flex-col bg-bg font-sans text-ink antialiased">
+    <body class="relative flex h-screen flex-col overflow-hidden bg-bg font-sans text-ink antialiased">
         <div class="pointer-events-none fixed inset-x-0 top-0 -z-10 h-96 bg-[radial-gradient(ellipse_60%_50%_at_50%_-10%,var(--color-teal-glow),transparent)] opacity-[0.08] dark:opacity-[0.15]"></div>
 
         <header class="sticky top-0 z-30 border-b border-border bg-surface/80 backdrop-blur-lg">
@@ -74,8 +74,14 @@
             </div>
         </header>
 
-        <main class="relative mx-auto w-full max-w-4xl flex-1 px-4 pb-24 pt-6 md:px-6 md:pb-10">
-            {{ $slot }}
+        <main class="relative mx-auto flex w-full max-w-4xl flex-1 flex-col overflow-hidden">
+            @if (request()->routeIs('chat'))
+                {{ $slot }}
+            @else
+                <div class="h-full overflow-y-auto px-4 pt-6 pb-24 md:px-6 md:pb-10">
+                    {{ $slot }}
+                </div>
+            @endif
         </main>
 
         <nav
