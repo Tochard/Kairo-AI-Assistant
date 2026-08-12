@@ -70,4 +70,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(Task::class);
     }
+
+    /**
+     * @return HasMany<Trackable, $this>
+     */
+    public function trackables(): HasMany
+    {
+        return $this->hasMany(Trackable::class);
+    }
 }
