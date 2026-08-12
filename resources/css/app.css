@@ -7,40 +7,39 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-    --font-display: 'Fraunces', ui-serif, Georgia, serif;
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
-    /* Kairo brand accents — locked palette, don't reinterpret. */
-    --color-teal: #0f9b8e;
-    --color-teal-dark: #0b7b70;
-    --color-amber: #f5a623;
-    --color-taupe: #b8a99a;
+    /* Kairo brand — glowing teal mark on black (public/images/logo.png). */
+    --color-teal: #14b8a6;
+    --color-teal-glow: #2dd4bf;
+    --color-violet-glow: #8b5cf6;
 
-    /* Semantic surface/text tokens — light values here, dark overrides below. */
-    --color-bg: #faf7f2;
+    /* Semantic surface/text tokens — light values here, dark overrides below.
+       Dark is the primary/default experience (see layouts' appearance seed script). */
+    --color-bg: #fafafa;
     --color-surface: #ffffff;
-    --color-surface-muted: #f1ece3;
-    --color-ink: #2a2724;
-    --color-ink-muted: #6b6459;
-    --color-border: #e8e0d4;
+    --color-surface-muted: #f4f4f5;
+    --color-ink: #111113;
+    --color-ink-muted: #6b7280;
+    --color-border: #e5e7eb;
 
-    /* Flux accent — Kairo's primary buttons/active states use the brand teal. */
-    --color-accent: var(--color-teal);
-    --color-accent-content: var(--color-teal-dark);
+    /* Flux accent — deeper teal than the glow shade so white button text holds contrast. */
+    --color-accent: #0d9488;
+    --color-accent-content: #14b8a6;
     --color-accent-foreground: #ffffff;
 }
 
 @layer theme {
     .dark {
-        --color-bg: #211e1a;
-        --color-surface: #2a2622;
-        --color-surface-muted: #332e28;
-        --color-ink: #f5f0e8;
-        --color-ink-muted: #b8a99a;
-        --color-border: #3d372f;
+        --color-bg: #0a0b0d;
+        --color-surface: #131417;
+        --color-surface-muted: #1b1d21;
+        --color-ink: #f5f6f7;
+        --color-ink-muted: #8b93a1;
+        --color-border: #24262b;
 
-        --color-accent: var(--color-teal);
-        --color-accent-content: var(--color-teal);
-        --color-accent-foreground: #ffffff;
+        --color-accent: #14b8a6;
+        --color-accent-content: #2dd4bf;
+        --color-accent-foreground: #0a0b0d;
     }
 }

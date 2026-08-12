@@ -33,7 +33,7 @@ new #[Layout('layouts::guest')] class extends Component
 ?>
 
 <div>
-    <flux:heading size="lg" class="font-display">Welcome back</flux:heading>
+    <flux:heading size="lg">Welcome back</flux:heading>
     <flux:text class="mt-1 mb-6 text-ink-muted">Good to see you. Let's pick up where we left off.</flux:text>
 
     <form wire:submit="login" class="flex flex-col gap-4">

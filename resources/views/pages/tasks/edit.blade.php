@@ -74,7 +74,7 @@ new #[Layout('layouts::app')] class extends Component
 ?>
 
 <div class="flex flex-col gap-6">
-    <flux:heading size="xl" class="font-display">Edit task</flux:heading>
+    <flux:heading size="xl">Edit task</flux:heading>
 
     <form wire:submit="save" class="flex flex-col gap-4">
         <flux:field>

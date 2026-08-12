@@ -27,7 +27,7 @@ new #[Layout('layouts::app')] class extends Component
 
 <div class="flex flex-col gap-6">
     <div class="flex items-center justify-between">
-        <flux:heading size="xl" class="font-display">Goals</flux:heading>
+        <flux:heading size="xl">Goals</flux:heading>
         <flux:button href="{{ route('goals.create') }}" wire:navigate variant="primary" icon="plus">New goal</flux:button>
     </div>
 

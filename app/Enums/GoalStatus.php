@@ -21,7 +21,7 @@ enum GoalStatus: string
     {
         return match ($this) {
             self::Active => 'teal',
-            self::Completed => 'amber',
+            self::Completed => 'violet',
             self::Archived => 'zinc',
         };
     }

@@ -15,10 +15,8 @@ new #[Layout('layouts::guest')] class extends Component
     #[Validate('required|string|email|max:255|unique:users,email')]
     public string $email = '';
 
-    #[Validate('required|string|min:8|confirmed')]
+    #[Validate('required|string|min:8')]
     public string $password = '';
-
-    public string $password_confirmation = '';
 
     public function register(): void
     {
@@ -40,7 +38,7 @@ new #[Layout('layouts::guest')] class extends Component
 ?>
 
 <div>
-    <flux:heading size="lg" class="font-display">Let's get you set up</flux:heading>
+    <flux:heading size="lg">Let's get you set up</flux:heading>
     <flux:text class="mt-1 mb-6 text-ink-muted">A minute of setup, and I'll take it from there.</flux:text>
 
     <form wire:submit="register" class="flex flex-col gap-4">
@@ -60,11 +58,6 @@ new #[Layout('layouts::guest')] class extends Component
             <flux:label>Password</flux:label>
             <flux:input wire:model="password" type="password" autocomplete="new-password" />
             <flux:error name="password" />
-        </flux:field>
-
-        <flux:field>
-            <flux:label>Confirm password</flux:label>
-            <flux:input wire:model="password_confirmation" type="password" autocomplete="new-password" />
         </flux:field>
 
         <flux:button type="submit" variant="primary" class="mt-2">Create my account</flux:button>

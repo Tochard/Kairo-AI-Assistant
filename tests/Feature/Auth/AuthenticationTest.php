@@ -9,7 +9,6 @@ test('a user can register', function () {
         ->set('name', 'Tochard')
         ->set('email', 'tochard@example.com')
         ->set('password', 'password123')
-        ->set('password_confirmation', 'password123')
         ->call('register')
         ->assertRedirect(route('dashboard'));
 
@@ -20,12 +19,11 @@ test('a user can register', function () {
     ]);
 });
 
-test('registration requires matching password confirmation', function () {
+test('registration requires a password of at least 8 characters', function () {
     Livewire::test('pages::auth.register')
         ->set('name', 'Tochard')
         ->set('email', 'tochard@example.com')
-        ->set('password', 'password123')
-        ->set('password_confirmation', 'nope')
+        ->set('password', 'short')
         ->call('register')
         ->assertHasErrors('password');
 

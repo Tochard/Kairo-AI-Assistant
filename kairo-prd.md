@@ -31,6 +31,7 @@ The defensible, unique mechanic is the **negotiation loop**: Kairo drafts a plan
 
 - **Voice chat**: users can speak to Kairo, not just type — covered in §6.9. Text input remains fully supported alongside it (voice is additive, not a replacement).
 - **Mobile-friendly**: the entire app — chat, dashboard, plan approval cards, quick-log — must be fully usable on a phone. No desktop-only interactions.
+- **Journal**: a freeform note/reflection space, separate from Goals/Tasks — confirmed in a later planning session (2026-08-12) as core to the "actual PA" vision, not yet fully spec'd (entries, prompts from Kairo, linkage to goals/check-ins all TBD). Slot in as its own feature area when reached, not bolted onto Goals.
 
 ## 4. Target User / Persona
 
@@ -163,7 +164,7 @@ commitments
 - **Performance:** Dashboard loads should stay snappy even with months of trackable logs — paginate/aggregate rather than loading full history.
 - **Reliability:** Reminders must survive shared-hosting quirks (Supervisor/cron workaround, as already solved in prior projects) — queue worker uptime is critical since it drives the core "follow-up" value prop.
 - **Cost control:** Cache/summarize conversation context sent to the LLM rather than sending full history every time (rolling summary after N messages).
-- **Design:** Distinctive, warm, playful visual identity — avoid generic admin-template look. Tailwind, custom type/color choices, following Anthropic's frontend-design principles for intentional (non-templated) UI.
+- **Design:** Distinctive, modern AI-product visual identity (dark-first, teal glow brand mark, clean geometric sans) — avoid generic admin-template look. See `kairo-design-SKILL.md` for the current locked palette/typography (revised 2026-08-12, supersedes the doc's original warm-palette draft). Tailwind, custom type/color choices, following Anthropic's frontend-design principles for intentional (non-templated) UI.
 - **Mobile-first:** Build and test every screen at mobile widths first, then scale up. Chat, plan-approval cards, and quick-log flows are the highest-traffic surfaces and must work one-handed on a phone.
 
 ## 10. Build Roadmap

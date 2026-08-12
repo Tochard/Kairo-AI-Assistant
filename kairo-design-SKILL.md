@@ -19,7 +19,24 @@ Copy rules (apply the frontend-design skill's writing guidance, tuned further fo
 - Empty states are invitations, phrased in Kairo's voice: "No goals yet — tell me something you're working toward."
 - Never fake urgency or guilt-trip over missed tasks. Follow-ups are curious ("what got in the way?"), not scolding.
 
-## Visual identity
+## Visual identity (revised 2026-08-12 — supersedes the original warm-cottage palette below)
+
+Kairo's brand mark is a glowing teal "K" (with a chat-bubble negative-space cutout) on black — `public/images/logo.png` / `logo.webp` / `favicon.ico`. The product direction is a modern AI-platform look: dark-first, glow/gradient accents, clean geometric sans — think Linear/Vercel/ChatGPT-adjacent, not a cozy journaling app. Still friendly (rounded corners, warm copy in chat), just not warm-toned visually anymore.
+
+**Theme default: dark-first.** The app should load in dark mode for new visitors regardless of system preference (seed `localStorage['flux.appearance'] = 'dark'` before `@fluxAppearance` runs if unset), with light mode fully built and toggleable. Dark is the primary/showcase experience.
+
+Palette (semantic tokens in `resources/css/app.css`, not literal hex sprinkled through views):
+- Brand teal (from the logo): `--color-teal` general UI accent (badges, links, icons), `--color-teal-glow` lighter/brighter variant for decorative glow/gradient use only (blurred background blobs, gradient text), `--color-accent` (deeper teal, `#0D9488`-ish) for solid button fills — needs to hold contrast with white text, so it's deliberately deeper than the glow teal.
+- Secondary "suiting" accent: a soft violet (`#8B5CF6`-ish) — used sparingly to pair with teal in gradients/glows and for the "completed" goal state. Not a general-purpose UI color.
+- Backgrounds/surfaces/text are cool neutrals now (not warm) — near-black dark bg, clean white/near-white light bg, gray-scale ink tones. No more taupe/cream/warm-gray.
+- Missed/incomplete states stay neutral (zinc/gray) — never red. This rule survives the palette change.
+
+Typography: a single clean modern geometric/grotesk sans across headers and body (Plus Jakarta Sans) — no separate warm display serif. Headers get weight/size, not a different typeface.
+
+Component texture: subtle glass/blur treatment (`backdrop-blur`, translucent borders) is fair game for hero/auth surfaces to reinforce the AI-product feel, but keep dense CRUD lists (goals/tasks) on solid surfaces for readability — don't glass-ify everything.
+
+<details>
+<summary>Original palette (superseded, kept for history)</summary>
 
 Do NOT default to the generic AI-cream-and-terracotta look or a near-black-with-neon-accent look — pick a palette that feels human and optimistic, distinct from a typical admin panel or typical AI product.
 
@@ -34,6 +51,7 @@ Locked palette (use these hex values directly — don't reinterpret):
 Dark mode supported (Flux UI ships this) but chat bubbles should stay warm-toned in both modes, not go cold gray.
 
 Typography: one characterful but readable display face for headers/greetings, a clean body face for everything else (chat text, dashboard data). Avoid overly corporate/geometric sans as the sole face — pick something with a bit of warmth in its letterforms.
+</details>
 
 Chat bubble design: Kairo's messages and the user's messages should be visually distinct but both feel soft (rounded, not sharp-cornered) — this is a conversation with a friend, not a terminal.
 

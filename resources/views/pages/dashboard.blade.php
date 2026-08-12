@@ -48,13 +48,13 @@ new #[Layout('layouts::app')] class extends Component
 
 <div class="flex flex-col gap-8">
     <div>
-        <flux:heading size="xl" class="font-display">Hey {{ auth()->user()->name }} 👋</flux:heading>
+        <flux:heading size="xl">Hey {{ auth()->user()->name }} 👋</flux:heading>
         <flux:text class="mt-1 text-ink-muted">Here's where things stand today.</flux:text>
     </div>
 
     <div class="flex flex-col gap-3">
         <div class="flex items-center justify-between">
-            <flux:heading size="lg" class="font-display">Active goals</flux:heading>
+            <flux:heading size="lg">Active goals</flux:heading>
             <flux:link href="{{ route('goals.index') }}" wire:navigate>View all</flux:link>
         </div>
 
@@ -90,7 +90,7 @@ new #[Layout('layouts::app')] class extends Component
 
     <div class="flex flex-col gap-3">
         <div class="flex items-center justify-between">
-            <flux:heading size="lg" class="font-display">Today's tasks</flux:heading>
+            <flux:heading size="lg">Today's tasks</flux:heading>
             <flux:link href="{{ route('tasks.index') }}" wire:navigate>View all</flux:link>
         </div>
 

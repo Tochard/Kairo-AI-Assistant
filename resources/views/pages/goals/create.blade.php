@@ -32,7 +32,7 @@ new #[Layout('layouts::app')] class extends Component
 
 <div class="flex flex-col gap-6">
     <div>
-        <flux:heading size="xl" class="font-display">New goal</flux:heading>
+        <flux:heading size="xl">New goal</flux:heading>
         <flux:text class="mt-1 text-ink-muted">What are you working toward?</flux:text>
     </div>
 
