@@ -136,7 +136,7 @@ new #[Layout('layouts::app')] class extends Component
         <aside class="relative flex h-full w-72 flex-col gap-1 overflow-y-auto bg-surface p-4 shadow-2xl" x-on:click.outside="historyOpen = false">
             <div class="mb-2 flex items-center justify-between">
                 <span class="font-bold text-ink">Chats</span>
-                <button type="button" x-on:click="historyOpen = false" aria-label="Close" class="flex size-8 cursor-pointer items-center justify-center rounded-full text-ink-muted hover:bg-surface-muted">
+                <button type="button" x-on:click="historyOpen = false" aria-label="Close" class="flex size-11 cursor-pointer items-center justify-center rounded-full text-ink-muted hover:bg-surface-muted">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="size-4">
                         <path d="M6 6l12 12M18 6L6 18" />
                     </svg>
@@ -146,7 +146,7 @@ new #[Layout('layouts::app')] class extends Component
             <a
                 href="{{ route('chat') }}"
                 wire:navigate
-                class="mb-2 flex items-center gap-1.5 rounded-xl border border-border px-3 py-2 text-sm font-medium text-ink"
+                class="mb-2 flex min-h-11 items-center gap-1.5 rounded-xl border border-border px-3 py-2 text-sm font-medium text-ink"
             >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="size-4">
                     <path d="M12 5v14M5 12h14" />
@@ -158,7 +158,7 @@ new #[Layout('layouts::app')] class extends Component
                 <a
                     href="{{ route('chat', $conv) }}"
                     wire:navigate
-                    class="truncate rounded-lg px-3 py-2 text-sm {{ $conv->id === $conversationId ? 'bg-surface-muted text-ink font-medium' : 'text-ink-muted' }}"
+                    class="flex min-h-11 items-center truncate rounded-lg px-3 py-2 text-sm {{ $conv->id === $conversationId ? 'bg-surface-muted text-ink font-medium' : 'text-ink-muted' }}"
                 >
                     {{ $conv->title }}
                 </a>
@@ -180,7 +180,7 @@ new #[Layout('layouts::app')] class extends Component
                 type="button"
                 x-on:click="historyOpen = true"
                 aria-label="Chat history"
-                class="flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border text-ink-muted transition hover:border-teal hover:text-teal md:hidden"
+                class="flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border text-ink-muted transition hover:border-teal hover:text-teal md:hidden"
             >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-5">
                     <circle cx="12" cy="12" r="9" />
