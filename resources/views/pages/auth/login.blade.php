@@ -54,13 +54,31 @@ new #[Layout('layouts::guest')] class extends Component
 
         <div>
             <label for="password" class="mb-1.5 block text-sm font-medium text-ink">Password</label>
-            <input
-                wire:model="password"
-                id="password"
-                type="password"
-                autocomplete="current-password"
-                class="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-ink placeholder:text-ink-muted focus:border-teal focus:ring-2 focus:ring-teal/30 focus:outline-none transition"
-            >
+            <div class="relative" x-data="{ show: false }">
+                <input
+                    wire:model="password"
+                    id="password"
+                    :type="show ? 'text' : 'password'"
+                    autocomplete="current-password"
+                    class="w-full rounded-xl border border-border bg-surface px-4 py-2.5 pr-11 text-ink placeholder:text-ink-muted focus:border-teal focus:ring-2 focus:ring-teal/30 focus:outline-none transition"
+                >
+                <button
+                    type="button"
+                    x-on:click="show = ! show"
+                    :aria-label="show ? 'Hide password' : 'Show password'"
+                    class="absolute inset-y-0 right-0 flex w-11 cursor-pointer items-center justify-center text-ink-muted hover:text-teal"
+                >
+                    <svg x-cloak x-show="! show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-5">
+                        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+                        <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    <svg x-cloak x-show="show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-5">
+                        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+                        <circle cx="12" cy="12" r="3" />
+                        <path d="M3 3l18 18" />
+                    </svg>
+                </button>
+            </div>
             @error('password')
                 <p class="mt-1.5 text-sm text-red-400">{{ $message }}</p>
             @enderror
