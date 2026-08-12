@@ -25,8 +25,12 @@
 
                 <nav class="hidden items-center gap-6 text-sm font-medium text-ink-muted md:flex">
                     <a href="{{ route('dashboard') }}" wire:navigate class="hover:text-ink {{ request()->routeIs('dashboard') ? 'text-teal' : '' }}">Dashboard</a>
-                    <a href="{{ route('goals.index') }}" wire:navigate class="hover:text-ink {{ request()->routeIs('goals.*') ? 'text-teal' : '' }}">Goals</a>
-                    <a href="{{ route('tasks.index') }}" wire:navigate class="hover:text-ink {{ request()->routeIs('tasks.*') ? 'text-teal' : '' }}">Tasks</a>
+                    @if (Route::has('goals.index'))
+                        <a href="{{ route('goals.index') }}" wire:navigate class="hover:text-ink {{ request()->routeIs('goals.*') ? 'text-teal' : '' }}">Goals</a>
+                    @endif
+                    @if (Route::has('tasks.index'))
+                        <a href="{{ route('tasks.index') }}" wire:navigate class="hover:text-ink {{ request()->routeIs('tasks.*') ? 'text-teal' : '' }}">Tasks</a>
+                    @endif
                 </nav>
 
                 <form method="POST" action="{{ route('logout') }}">
@@ -48,14 +52,18 @@
                 <flux:icon name="home" class="size-6" />
                 Home
             </a>
-            <a href="{{ route('goals.index') }}" wire:navigate class="flex min-h-11 min-w-11 flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs font-medium {{ request()->routeIs('goals.*') ? 'text-teal' : 'text-ink-muted' }}">
-                <flux:icon name="flag" class="size-6" />
-                Goals
-            </a>
-            <a href="{{ route('tasks.index') }}" wire:navigate class="flex min-h-11 min-w-11 flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs font-medium {{ request()->routeIs('tasks.*') ? 'text-teal' : 'text-ink-muted' }}">
-                <flux:icon name="check-circle" class="size-6" />
-                Tasks
-            </a>
+            @if (Route::has('goals.index'))
+                <a href="{{ route('goals.index') }}" wire:navigate class="flex min-h-11 min-w-11 flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs font-medium {{ request()->routeIs('goals.*') ? 'text-teal' : 'text-ink-muted' }}">
+                    <flux:icon name="flag" class="size-6" />
+                    Goals
+                </a>
+            @endif
+            @if (Route::has('tasks.index'))
+                <a href="{{ route('tasks.index') }}" wire:navigate class="flex min-h-11 min-w-11 flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs font-medium {{ request()->routeIs('tasks.*') ? 'text-teal' : 'text-ink-muted' }}">
+                    <flux:icon name="check-circle" class="size-6" />
+                    Tasks
+                </a>
+            @endif
         </nav>
 
         @fluxScripts

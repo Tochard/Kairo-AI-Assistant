@@ -23,9 +23,14 @@
     --color-ink: #2a2724;
     --color-ink-muted: #6b6459;
     --color-border: #e8e0d4;
+
+    /* Flux accent — Kairo's primary buttons/active states use the brand teal. */
+    --color-accent: var(--color-teal);
+    --color-accent-content: var(--color-teal-dark);
+    --color-accent-foreground: #ffffff;
 }
 
-@layer base {
+@layer theme {
     .dark {
         --color-bg: #211e1a;
         --color-surface: #2a2622;
@@ -33,5 +38,9 @@
         --color-ink: #f5f0e8;
         --color-ink-muted: #b8a99a;
         --color-border: #3d372f;
+
+        --color-accent: var(--color-teal);
+        --color-accent-content: var(--color-teal);
+        --color-accent-foreground: #ffffff;
     }
 }
