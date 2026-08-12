@@ -17,5 +17,9 @@ Route::middleware('auth')->group(function () {
     Route::livewire('/goals/create', 'pages::goals.create')->name('goals.create');
     Route::livewire('/goals/{goal}/edit', 'pages::goals.edit')->name('goals.edit');
 
+    Route::livewire('/tasks', 'pages::tasks.index')->name('tasks.index');
+    Route::livewire('/tasks/create', 'pages::tasks.create')->name('tasks.create');
+    Route::livewire('/tasks/{task}/edit', 'pages::tasks.edit')->name('tasks.edit');
+
     Route::post('/logout', LogoutController::class)->name('logout');
 });
