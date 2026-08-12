@@ -4,6 +4,7 @@ use App\Enums\GoalStatus;
 use App\Enums\TaskStatus;
 use App\Models\Goal;
 use App\Models\Task;
+use App\Models\Trackable;
 use App\Models\User;
 use Livewire\Livewire;
 
@@ -31,6 +32,19 @@ test('a user sees their own active goals and due tasks, not another users', func
         ->assertSee('Due today')
         ->assertDontSee('Due next week')
         ->assertDontSee('Someone elses task');
+});
+
+test('a user sees their own trackables but not another users', function () {
+    $user = User::factory()->create();
+    $otherUser = User::factory()->create();
+
+    Trackable::factory()->for($user)->create(['name' => 'My savings']);
+    Trackable::factory()->for($otherUser)->create(['name' => 'Someone elses savings']);
+
+    $this->actingAs($user)
+        ->get(route('dashboard'))
+        ->assertSee('My savings')
+        ->assertDontSee('Someone elses savings');
 });
 
 test('a user can mark a due task done from the dashboard', function () {

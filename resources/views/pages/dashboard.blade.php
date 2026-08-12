@@ -37,11 +37,18 @@ new #[Layout('layouts::app')] class extends Component
             ->take(6)
             ->get();
 
+        $trackables = auth()->user()->trackables()
+            ->with(['logs' => fn ($query) => $query->latest('logged_at')->limit(1)])
+            ->latest()
+            ->take(4)
+            ->get();
+
         return [
             'activeGoals' => $activeGoals,
             'activeGoalCount' => auth()->user()->goals()->where('status', GoalStatus::Active)->count(),
             'todaysTasks' => $todaysTasks,
             'completedCount' => auth()->user()->tasks()->where('status', TaskStatus::Done)->count(),
+            'trackables' => $trackables,
         ];
     }
 };
@@ -144,6 +151,47 @@ new #[Layout('layouts::app')] class extends Component
 
                         <span class="shrink-0 text-xs text-ink-muted">{{ $task->due_date->format('M j') }}</span>
                     </div>
+                @endforeach
+            </div>
+        @endif
+    </div>
+
+    <div class="flex flex-col gap-3">
+        <div class="flex items-center justify-between">
+            <h2 class="text-lg font-bold tracking-tight text-ink">Trackables</h2>
+            <a href="{{ route('trackables.index') }}" wire:navigate class="text-sm font-medium text-teal hover:underline">View all</a>
+        </div>
+
+        @if ($trackables->isEmpty())
+            <div class="rounded-3xl border border-dashed border-border bg-surface p-6 text-center">
+                <p class="text-ink-muted">Nothing to track yet — what do you want to keep an eye on?</p>
+                <a
+                    href="{{ route('trackables.create') }}"
+                    wire:navigate
+                    class="mt-3 inline-block cursor-pointer rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground shadow-lg shadow-teal/20 transition hover:brightness-110 hover:shadow-teal/40"
+                >
+                    Start tracking
+                </a>
+            </div>
+        @else
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                @foreach ($trackables as $trackable)
+                    <a
+                        wire:key="dash-trackable-{{ $trackable->id }}"
+                        href="{{ route('trackables.show', $trackable) }}"
+                        wire:navigate
+                        class="rounded-2xl border border-border bg-surface p-4 transition hover:border-teal"
+                    >
+                        <p class="truncate text-xs font-medium text-ink-muted">{{ $trackable->name }}</p>
+                        <p class="mt-1 text-lg font-bold text-teal">
+                            @if ($trackable->logs->isNotEmpty())
+                                {{ number_format($trackable->logs->first()->value, 0) }}
+                                <span class="text-xs font-normal text-ink-muted">{{ $trackable->unit }}</span>
+                            @else
+                                <span class="text-xs font-normal text-ink-muted">No logs</span>
+                            @endif
+                        </p>
+                    </a>
                 @endforeach
             </div>
         @endif
