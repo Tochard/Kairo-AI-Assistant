@@ -12,6 +12,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use Laravel\Ai\Concerns\HasConversations;
 
 /**
  * @property int $id
@@ -28,7 +29,7 @@ use Illuminate\Support\Str;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasConversations, HasFactory, Notifiable;
 
     /**
      * Get the attributes that should be cast.
