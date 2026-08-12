@@ -16,9 +16,8 @@ test('a user can send a message and see Kairos reply', function () {
 
     Livewire::actingAs($user)
         ->test('pages::chat')
-        ->set('message', 'I want to save ₦500k by December')
-        ->call('send')
-        ->assertSet('message', '');
+        ->call('send', 'I want to save ₦500k by December')
+        ->assertSet('error', null);
 
     Kairo::assertPrompted('I want to save ₦500k by December');
 
@@ -33,16 +32,27 @@ test('a user can send a message and see Kairos reply', function () {
     ]);
 });
 
-test('an empty message cannot be sent', function () {
+test('an empty or whitespace-only message is a no-op', function () {
     $user = User::factory()->create();
 
     Kairo::fake();
 
     Livewire::actingAs($user)
         ->test('pages::chat')
-        ->set('message', '')
-        ->call('send')
-        ->assertHasErrors('message');
+        ->call('send', '   ');
+
+    Kairo::assertNeverPrompted();
+});
+
+test('an overly long message is rejected with a friendly error', function () {
+    $user = User::factory()->create();
+
+    Kairo::fake();
+
+    Livewire::actingAs($user)
+        ->test('pages::chat')
+        ->call('send', str_repeat('a', 2001))
+        ->assertSet('error', "That's a bit long for me to take in at once — mind trimming it down?");
 
     Kairo::assertNeverPrompted();
 });
@@ -52,10 +62,10 @@ test('a user only sees their own conversation', function () {
     $otherUser = User::factory()->create();
 
     Kairo::fake(['Reply to user one']);
-    Livewire::actingAs($user)->test('pages::chat')->set('message', 'Hello from user one')->call('send');
+    Livewire::actingAs($user)->test('pages::chat')->call('send', 'Hello from user one');
 
     Kairo::fake(['Reply to user two']);
-    Livewire::actingAs($otherUser)->test('pages::chat')->set('message', 'Hello from user two')->call('send');
+    Livewire::actingAs($otherUser)->test('pages::chat')->call('send', 'Hello from user two');
 
     $this->actingAs($user)
         ->get(route('chat'))
@@ -76,8 +86,7 @@ test('chat is rate limited per user', function () {
 
     Livewire::actingAs($user)
         ->test('pages::chat')
-        ->set('message', 'One more message')
-        ->call('send')
+        ->call('send', 'One more message')
         ->assertSet('error', "Let's take a short breather — mind trying again in a few minutes?");
 
     Kairo::assertNeverPrompted();
