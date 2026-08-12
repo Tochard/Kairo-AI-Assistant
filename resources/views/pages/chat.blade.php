@@ -103,7 +103,7 @@ new #[Layout('layouts::app')] class extends Component
 };
 ?>
 
-<div class="flex items-start gap-6" x-data="{ pending: [], historyOpen: false }">
+<div class="flex items-start gap-6" x-data="chatPage()">
     {{-- Desktop history sidebar --}}
     <aside class="sticky top-20 hidden w-56 shrink-0 flex-col gap-1 md:flex">
         <a
@@ -189,6 +189,20 @@ new #[Layout('layouts::app')] class extends Component
             </button>
         </div>
 
+        <div
+            x-show="speaking"
+            x-cloak
+            x-on:click="stopSpeaking()"
+            class="flex cursor-pointer items-center gap-2 self-start rounded-full border border-teal/30 bg-teal/10 px-3 py-1.5 text-xs font-medium text-teal animate-pulse"
+        >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-3.5">
+                <path d="M4 9v6h4l5 4V5L8 9H4Z" />
+                <path d="M17 9a4 4 0 0 1 0 6" />
+                <path d="M19.5 7a7.5 7.5 0 0 1 0 10" />
+            </svg>
+            Kairo is speaking — tap to stop
+        </div>
+
         <div class="flex flex-col gap-3">
             @if ($messages->isEmpty())
                 <div x-show="pending.length === 0" class="rounded-3xl border border-dashed border-border bg-surface p-8 text-center">
@@ -233,24 +247,15 @@ new #[Layout('layouts::app')] class extends Component
             <p class="text-sm text-red-400">{{ $error }}</p>
         @endif
 
-        <form
-            x-on:submit.prevent="
-                const text = $refs.input.value.trim();
-                if (! text || pending.length > 0) return;
-                const id = Date.now() + Math.random();
-                pending.push({ id, text });
-                $refs.input.value = '';
-                $nextTick(() => window.scrollTo(0, document.body.scrollHeight));
-                $wire.send(text).then((result) => {
-                    pending = pending.filter((p) => p.id !== id);
-                    if (result.conversationId && ! window.location.pathname.includes(result.conversationId)) {
-                        window.history.replaceState({}, '', '/chat/' + result.conversationId);
-                    }
-                    $nextTick(() => window.scrollTo(0, document.body.scrollHeight));
-                });
-            "
-            class="sticky bottom-20 z-20 flex items-center gap-2 md:bottom-6"
-        >
+        <div x-show="listening" x-cloak class="flex items-center gap-1.5 self-start text-xs font-medium text-teal">
+            <span class="relative flex size-2">
+                <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal opacity-75"></span>
+                <span class="relative inline-flex size-2 rounded-full bg-teal"></span>
+            </span>
+            Listening…
+        </div>
+
+        <form x-on:submit.prevent="submit()" class="sticky bottom-20 z-20 flex items-center gap-2 md:bottom-6">
             <input
                 x-ref="input"
                 type="text"
@@ -258,6 +263,21 @@ new #[Layout('layouts::app')] class extends Component
                 autocomplete="off"
                 class="flex-1 rounded-full border border-border bg-surface px-4 py-3 text-ink shadow-lg placeholder:text-ink-muted focus:border-teal focus:ring-2 focus:ring-teal/30 focus:outline-none"
             >
+            <button
+                type="button"
+                x-show="voiceSupported"
+                x-cloak
+                x-on:click="toggleListening()"
+                :class="listening ? 'bg-red-500 text-white' : 'text-ink-muted hover:border-teal hover:text-teal'"
+                class="flex size-12 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border shadow-lg transition"
+                :aria-label="listening ? 'Stop listening' : 'Speak your message'"
+            >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-5">
+                    <rect x="9" y="3" width="6" height="11" rx="3" />
+                    <path d="M5 11a7 7 0 0 0 14 0" />
+                    <path d="M12 18v3" />
+                </svg>
+            </button>
             <button
                 type="submit"
                 :disabled="pending.length > 0"
