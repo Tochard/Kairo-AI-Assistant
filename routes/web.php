@@ -21,5 +21,10 @@ Route::middleware('auth')->group(function () {
     Route::livewire('/tasks/create', 'pages::tasks.create')->name('tasks.create');
     Route::livewire('/tasks/{task}/edit', 'pages::tasks.edit')->name('tasks.edit');
 
+    Route::livewire('/trackables', 'pages::trackables.index')->name('trackables.index');
+    Route::livewire('/trackables/create', 'pages::trackables.create')->name('trackables.create');
+    Route::livewire('/trackables/{trackable}', 'pages::trackables.show')->name('trackables.show');
+    Route::livewire('/trackables/{trackable}/edit', 'pages::trackables.edit')->name('trackables.edit');
+
     Route::post('/logout', LogoutController::class)->name('logout');
 });

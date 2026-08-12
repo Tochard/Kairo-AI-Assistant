@@ -38,6 +38,9 @@
                     @if (Route::has('tasks.index'))
                         <a href="{{ route('tasks.index') }}" wire:navigate class="transition-colors hover:text-ink {{ request()->routeIs('tasks.*') ? 'text-teal' : '' }}">Tasks</a>
                     @endif
+                    @if (Route::has('trackables.index'))
+                        <a href="{{ route('trackables.index') }}" wire:navigate class="transition-colors hover:text-ink {{ request()->routeIs('trackables.*') ? 'text-teal' : '' }}">Trackables</a>
+                    @endif
                 </nav>
 
                 <div class="flex items-center gap-2">
@@ -99,6 +102,16 @@
                         <path d="M8.5 12.5l2.5 2.5 4.5-5" />
                     </svg>
                     Tasks
+                </a>
+            @endif
+            @if (Route::has('trackables.index'))
+                <a href="{{ route('trackables.index') }}" wire:navigate class="flex min-h-11 min-w-11 flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs font-medium {{ request()->routeIs('trackables.*') ? 'text-teal' : 'text-ink-muted' }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-6">
+                        <path d="M5 20V13" />
+                        <path d="M12 20V8" />
+                        <path d="M19 20v-5" />
+                    </svg>
+                    Trackables
                 </a>
             @endif
         </nav>
