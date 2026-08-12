@@ -1,8 +1,8 @@
 <?php
 
 use App\Ai\Agents\Kairo;
-use App\Models\User;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 use Laravel\Ai\Models\Conversation;
 use Laravel\Ai\Models\ConversationMessage;
 use Livewire\Attributes\Layout;
@@ -203,7 +203,11 @@ new #[Layout('layouts::app')] class extends Component
                             ? 'bg-accent text-accent-foreground'
                             : 'border border-border bg-surface text-ink' }}"
                     >
-                        <p class="text-sm whitespace-pre-wrap">{{ $msg->content }}</p>
+                        @if ($msg->role === 'assistant')
+                            <div class="chat-markdown text-sm">{!! Str::markdown($msg->content, ['html_input' => 'strip', 'allow_unsafe_links' => false]) !!}</div>
+                        @else
+                            <p class="text-sm whitespace-pre-wrap">{{ $msg->content }}</p>
+                        @endif
                     </div>
                 </div>
             @endforeach

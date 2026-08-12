@@ -47,3 +47,55 @@
         --color-accent-foreground: #0a0b0d;
     }
 }
+
+/* Kairo's assistant chat bubbles render Str::markdown() output — hand-styled
+   instead of pulling in @tailwindcss/typography for a handful of elements. */
+.chat-markdown :where(p):not(:first-child) {
+    margin-top: 0.5em;
+}
+
+.chat-markdown :where(ul, ol) {
+    margin-top: 0.5em;
+    padding-left: 1.25em;
+}
+
+.chat-markdown ul {
+    list-style-type: disc;
+}
+
+.chat-markdown ol {
+    list-style-type: decimal;
+}
+
+.chat-markdown li + li {
+    margin-top: 0.125em;
+}
+
+.chat-markdown strong {
+    font-weight: 600;
+}
+
+.chat-markdown a {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.chat-markdown code {
+    background: var(--color-surface-muted);
+    padding: 0.125em 0.375em;
+    border-radius: 0.25em;
+    font-size: 0.875em;
+}
+
+.chat-markdown pre {
+    margin-top: 0.5em;
+    overflow-x: auto;
+    border-radius: 0.5em;
+    background: var(--color-surface-muted);
+    padding: 0.75em;
+}
+
+.chat-markdown pre code {
+    background: none;
+    padding: 0;
+}

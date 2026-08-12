@@ -46,6 +46,21 @@ test('a user can send a message and see Kairos reply', function () {
     ]);
 });
 
+test('assistant replies render as markdown and neutralize raw html', function () {
+    $user = User::factory()->create();
+
+    Kairo::fake(["Here's the plan:\n\n**Step one**\n\n- <script>alert(1)</script> save\n- track"]);
+
+    $component = Livewire::actingAs($user)->test('pages::chat');
+    $component->call('send', 'Plan it out for me');
+
+    $response = $this->actingAs($user)->get(route('chat', $component->conversationId));
+
+    $response->assertSee('<strong>Step one</strong>', false);
+    $response->assertSee('<li>', false);
+    $response->assertDontSee('<script>alert(1)</script>', false);
+});
+
 test('sending twice on a bare chat continues the same new conversation', function () {
     $user = User::factory()->create();
 
