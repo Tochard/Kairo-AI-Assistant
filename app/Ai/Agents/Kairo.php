@@ -4,6 +4,9 @@ namespace App\Ai\Agents;
 
 use App\Ai\Tools\CreateGoalTool;
 use App\Ai\Tools\CreateTaskTool;
+use App\Ai\Tools\CreateTrackableTool;
+use App\Ai\Tools\GetProgressSummaryTool;
+use App\Ai\Tools\LogTrackableTool;
 use App\Ai\Tools\UpdateTaskStatusTool;
 use App\Enums\GoalStatus;
 use App\Enums\TaskStatus;
@@ -105,6 +108,9 @@ class Kairo implements Agent, Conversational, HasTools
             new CreateGoalTool($this->user),
             new CreateTaskTool($this->user),
             new UpdateTaskStatusTool($this->user),
+            new CreateTrackableTool($this->user),
+            new LogTrackableTool($this->user),
+            new GetProgressSummaryTool($this->user),
         ];
     }
 }
