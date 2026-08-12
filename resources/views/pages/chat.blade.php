@@ -20,15 +20,31 @@ new #[Layout('layouts::app')] class extends Component
             return;
         }
 
-        $model = Conversation::find($conversation);
-
-        $owner = $model
-            && $model->participant_type === Conversation::participantType(auth()->user())
-            && (string) $model->participant_id === (string) Conversation::participantKey(auth()->user());
-
-        abort_unless($owner, 404);
+        abort_unless($this->ownsConversation($conversation), 404);
 
         $this->conversationId = $conversation;
+    }
+
+    public function renameConversation(string $conversationId, string $title): void
+    {
+        abort_unless($this->ownsConversation($conversationId), 403);
+
+        $title = trim($title);
+
+        if ($title === '') {
+            return;
+        }
+
+        Conversation::whereKey($conversationId)->update(['title' => Str::limit($title, 100, '')]);
+    }
+
+    protected function ownsConversation(string $conversationId): bool
+    {
+        $model = Conversation::find($conversationId);
+
+        return $model
+            && $model->participant_type === Conversation::participantType(auth()->user())
+            && (string) $model->participant_id === (string) Conversation::participantKey(auth()->user());
     }
 
     /**
@@ -119,13 +135,7 @@ new #[Layout('layouts::app')] class extends Component
 
         <div class="flex flex-col gap-0.5">
             @foreach ($conversations as $conv)
-                <a
-                    href="{{ route('chat', $conv) }}"
-                    wire:navigate
-                    class="truncate rounded-lg px-3 py-2 text-sm {{ $conv->id === $conversationId ? 'bg-surface-muted text-ink font-medium' : 'text-ink-muted hover:bg-surface-muted hover:text-ink' }}"
-                >
-                    {{ $conv->title }}
-                </a>
+                @include('pages.chat.conversation-item', ['conv' => $conv])
             @endforeach
         </div>
     </aside>
@@ -155,13 +165,7 @@ new #[Layout('layouts::app')] class extends Component
             </a>
 
             @foreach ($conversations as $conv)
-                <a
-                    href="{{ route('chat', $conv) }}"
-                    wire:navigate
-                    class="flex min-h-11 items-center truncate rounded-lg px-3 py-2 text-sm {{ $conv->id === $conversationId ? 'bg-surface-muted text-ink font-medium' : 'text-ink-muted' }}"
-                >
-                    {{ $conv->title }}
-                </a>
+                @include('pages.chat.conversation-item', ['conv' => $conv])
             @endforeach
         </aside>
     </div>

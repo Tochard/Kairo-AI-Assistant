@@ -170,3 +170,51 @@ test('chat is rate limited per user', function () {
 
     Kairo::assertNeverPrompted();
 });
+
+test('a user can rename their own conversation', function () {
+    $user = User::factory()->create();
+
+    Kairo::fake(['A reply']);
+    $component = Livewire::actingAs($user)->test('pages::chat');
+    $component->call('send', 'Original message');
+    $conversationId = $component->conversationId;
+
+    Livewire::actingAs($user)
+        ->test('pages::chat', ['conversation' => $conversationId])
+        ->call('renameConversation', $conversationId, 'My savings plan');
+
+    expect(Conversation::find($conversationId)->title)->toBe('My savings plan');
+});
+
+test('a blank rename is ignored', function () {
+    $user = User::factory()->create();
+
+    Kairo::fake(['A reply']);
+    $component = Livewire::actingAs($user)->test('pages::chat');
+    $component->call('send', 'Original message');
+    $conversationId = $component->conversationId;
+    $originalTitle = Conversation::find($conversationId)->title;
+
+    Livewire::actingAs($user)
+        ->test('pages::chat', ['conversation' => $conversationId])
+        ->call('renameConversation', $conversationId, '   ');
+
+    expect(Conversation::find($conversationId)->title)->toBe($originalTitle);
+});
+
+test('a user cannot rename another users conversation', function () {
+    $user = User::factory()->create();
+    $otherUser = User::factory()->create();
+
+    Kairo::fake(['A reply']);
+    $component = Livewire::actingAs($otherUser)->test('pages::chat');
+    $component->call('send', 'Not yours');
+    $conversationId = $component->conversationId;
+
+    Livewire::actingAs($user)
+        ->test('pages::chat')
+        ->call('renameConversation', $conversationId, 'Hijacked title')
+        ->assertForbidden();
+
+    expect(Conversation::find($conversationId)->title)->not->toBe('Hijacked title');
+});
