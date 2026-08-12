@@ -40,10 +40,31 @@
                     @endif
                 </nav>
 
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <flux:button type="submit" variant="ghost" size="sm">Log out</flux:button>
-                </form>
+                <div class="flex items-center gap-2">
+                    <div x-data>
+                        <button
+                            type="button"
+                            x-on:click="$flux.dark = ! $flux.dark"
+                            aria-label="Toggle dark mode"
+                            class="flex size-9 cursor-pointer items-center justify-center rounded-full border border-border text-ink-muted transition hover:border-teal hover:text-teal"
+                        >
+                            <svg x-cloak x-show="$flux.dark" viewBox="0 0 24 24" fill="currentColor" class="size-4.5">
+                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" />
+                            </svg>
+                            <svg x-cloak x-show="! $flux.dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="size-4.5">
+                                <circle cx="12" cy="12" r="4" />
+                                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="cursor-pointer rounded-full px-3.5 py-1.5 text-sm font-medium text-ink-muted transition hover:bg-surface-muted hover:text-ink">
+                            Log out
+                        </button>
+                    </form>
+                </div>
             </div>
         </header>
 
@@ -56,18 +77,27 @@
             aria-label="Primary"
         >
             <a href="{{ route('dashboard') }}" wire:navigate class="flex min-h-11 min-w-11 flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs font-medium {{ request()->routeIs('dashboard') ? 'text-teal' : 'text-ink-muted' }}">
-                <flux:icon name="home" class="size-6" />
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-6">
+                    <path d="M3 11.5 12 4l9 7.5" />
+                    <path d="M5.5 10v9a1 1 0 0 0 1 1H9a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h2.5a1 1 0 0 0 1-1v-9" />
+                </svg>
                 Home
             </a>
             @if (Route::has('goals.index'))
                 <a href="{{ route('goals.index') }}" wire:navigate class="flex min-h-11 min-w-11 flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs font-medium {{ request()->routeIs('goals.*') ? 'text-teal' : 'text-ink-muted' }}">
-                    <flux:icon name="flag" class="size-6" />
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-6">
+                        <path d="M5 21V4" />
+                        <path d="M5 4h13l-3 4 3 4H5" />
+                    </svg>
                     Goals
                 </a>
             @endif
             @if (Route::has('tasks.index'))
                 <a href="{{ route('tasks.index') }}" wire:navigate class="flex min-h-11 min-w-11 flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs font-medium {{ request()->routeIs('tasks.*') ? 'text-teal' : 'text-ink-muted' }}">
-                    <flux:icon name="check-circle" class="size-6" />
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-6">
+                        <circle cx="12" cy="12" r="9" />
+                        <path d="M8.5 12.5l2.5 2.5 4.5-5" />
+                    </svg>
                     Tasks
                 </a>
             @endif
