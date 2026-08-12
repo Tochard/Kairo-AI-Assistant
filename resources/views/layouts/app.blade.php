@@ -32,6 +32,9 @@
 
                 <nav class="hidden items-center gap-6 text-sm font-medium text-ink-muted md:flex">
                     <a href="{{ route('dashboard') }}" wire:navigate class="transition-colors hover:text-ink {{ request()->routeIs('dashboard') ? 'text-teal' : '' }}">Dashboard</a>
+                    @if (Route::has('chat'))
+                        <a href="{{ route('chat') }}" wire:navigate class="transition-colors hover:text-ink {{ request()->routeIs('chat') ? 'text-teal' : '' }}">Chat</a>
+                    @endif
                     @if (Route::has('goals.index'))
                         <a href="{{ route('goals.index') }}" wire:navigate class="transition-colors hover:text-ink {{ request()->routeIs('goals.*') ? 'text-teal' : '' }}">Goals</a>
                     @endif
@@ -86,6 +89,14 @@
                 </svg>
                 Home
             </a>
+            @if (Route::has('chat'))
+                <a href="{{ route('chat') }}" wire:navigate class="flex min-h-11 min-w-11 flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs font-medium {{ request()->routeIs('chat') ? 'text-teal' : 'text-ink-muted' }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-6">
+                        <path d="M4 5h16v11H8l-4 4V5Z" />
+                    </svg>
+                    Chat
+                </a>
+            @endif
             @if (Route::has('goals.index'))
                 <a href="{{ route('goals.index') }}" wire:navigate class="flex min-h-11 min-w-11 flex-1 flex-col items-center justify-center gap-0.5 py-2 text-xs font-medium {{ request()->routeIs('goals.*') ? 'text-teal' : 'text-ink-muted' }}">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-6">
