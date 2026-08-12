@@ -2,6 +2,9 @@
 
 namespace App\Ai\Agents;
 
+use App\Ai\Tools\CreateGoalTool;
+use App\Ai\Tools\CreateTaskTool;
+use App\Ai\Tools\UpdateTaskStatusTool;
 use App\Enums\GoalStatus;
 use App\Enums\TaskStatus;
 use App\Models\User;
@@ -56,34 +59,37 @@ class Kairo implements Agent, Conversational, HasTools
 
         $activeGoals = $this->user->goals()
             ->where('status', GoalStatus::Active)
-            ->get(['title', 'target_date']);
+            ->get(['id', 'title', 'target_date']);
 
         $dueTasks = $this->user->tasks()
             ->where('status', TaskStatus::Pending)
             ->whereNotNull('due_date')
             ->whereDate('due_date', '<=', $today->copy()->addDays(7))
             ->orderBy('due_date')
-            ->get(['title', 'due_date']);
+            ->get(['id', 'title', 'due_date']);
 
-        $trackables = $this->user->trackables()->get(['name', 'unit']);
+        $trackables = $this->user->trackables()->get(['id', 'name', 'unit']);
 
-        $lines = ["Today's date: {$today->toFormattedDateString()}."];
+        $lines = [
+            "Today's date: {$today->toFormattedDateString()}.",
+            'When you reference an existing goal, task, or trackable in a tool call, use the numeric id shown below in brackets — never guess an id.',
+        ];
 
         $lines[] = $activeGoals->isEmpty()
             ? 'The user has no active goals yet.'
             : "Active goals:\n".$activeGoals->map(
-                fn ($goal) => '- '.$goal->title.($goal->target_date ? ' (target: '.$goal->target_date->format('M j, Y').')' : '')
+                fn ($goal) => "- [id: {$goal->id}] {$goal->title}".($goal->target_date ? ' (target: '.$goal->target_date->format('M j, Y').')' : '')
             )->implode("\n");
 
         $lines[] = $dueTasks->isEmpty()
             ? 'No tasks due in the next 7 days.'
             : "Tasks due soon:\n".$dueTasks->map(
-                fn ($task) => '- '.$task->title.' (due '.$task->due_date->format('M j').')'
+                fn ($task) => "- [id: {$task->id}] {$task->title} (due ".$task->due_date->format('M j').')'
             )->implode("\n");
 
         $lines[] = $trackables->isEmpty()
             ? 'The user has no trackables set up yet.'
-            : 'Trackables: '.$trackables->map(fn ($t) => "{$t->name} ({$t->unit})")->implode(', ').'.';
+            : "Trackables:\n".$trackables->map(fn ($t) => "- [id: {$t->id}] {$t->name} ({$t->unit})")->implode("\n");
 
         return implode("\n\n", $lines);
     }
@@ -95,6 +101,10 @@ class Kairo implements Agent, Conversational, HasTools
      */
     public function tools(): iterable
     {
-        return [];
+        return [
+            new CreateGoalTool($this->user),
+            new CreateTaskTool($this->user),
+            new UpdateTaskStatusTool($this->user),
+        ];
     }
 }
