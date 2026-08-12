@@ -26,7 +26,7 @@
         <header class="sticky top-0 z-30 border-b border-border bg-surface/80 backdrop-blur-lg">
             <div class="mx-auto flex max-w-4xl items-center justify-between px-4 py-3.5 md:px-6">
                 <a href="{{ route('dashboard') }}" wire:navigate class="flex items-center gap-2 text-lg font-bold tracking-tight text-ink">
-                    <span class="inline-block size-2 rounded-full bg-teal shadow-[0_0_12px_var(--color-teal-glow)]"></span>
+                    <img src="/images/logo.webp" alt="" class="h-8 w-auto">
                     Kairo
                 </a>
 
