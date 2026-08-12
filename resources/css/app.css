@@ -8,4 +8,30 @@
 
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-display: 'Fraunces', ui-serif, Georgia, serif;
+
+    /* Kairo brand accents — locked palette, don't reinterpret. */
+    --color-teal: #0f9b8e;
+    --color-teal-dark: #0b7b70;
+    --color-amber: #f5a623;
+    --color-taupe: #b8a99a;
+
+    /* Semantic surface/text tokens — light values here, dark overrides below. */
+    --color-bg: #faf7f2;
+    --color-surface: #ffffff;
+    --color-surface-muted: #f1ece3;
+    --color-ink: #2a2724;
+    --color-ink-muted: #6b6459;
+    --color-border: #e8e0d4;
+}
+
+@layer base {
+    .dark {
+        --color-bg: #211e1a;
+        --color-surface: #2a2622;
+        --color-surface-muted: #332e28;
+        --color-ink: #f5f0e8;
+        --color-ink-muted: #b8a99a;
+        --color-border: #3d372f;
+    }
 }
