@@ -78,7 +78,7 @@
             @if (request()->routeIs('chat'))
                 {{ $slot }}
             @else
-                <div class="h-full overflow-y-auto px-4 pt-6 pb-24 md:px-6 md:pb-10">
+                <div class="no-scrollbar h-full overflow-y-auto px-4 pt-6 pb-24 md:px-6 md:pb-10">
                     {{ $slot }}
                 </div>
             @endif

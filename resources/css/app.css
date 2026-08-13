@@ -10,6 +10,17 @@
     display: none !important;
 }
 
+/* Scrollable regions that should scroll without a visible scrollbar
+   (chat message list, chat sidebar/drawer, the growing message textarea). */
+.no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
 @theme {
     --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 

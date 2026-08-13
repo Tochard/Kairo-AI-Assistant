@@ -121,7 +121,7 @@ new #[Layout('layouts::app')] class extends Component
 
 <div class="flex h-full items-stretch gap-6 px-4 pt-4 pb-2 md:px-6 md:pb-4" x-data="chatPage()">
     {{-- Desktop history sidebar --}}
-    <aside class="hidden h-full w-56 shrink-0 flex-col gap-1 overflow-y-auto md:flex">
+    <aside class="no-scrollbar hidden h-full w-56 shrink-0 flex-col gap-1 overflow-y-auto md:flex">
         <a
             href="{{ route('chat') }}"
             wire:navigate
@@ -143,7 +143,7 @@ new #[Layout('layouts::app')] class extends Component
     {{-- Mobile history drawer --}}
     <div x-show="historyOpen" x-cloak class="fixed inset-0 z-50 md:hidden">
         <div class="absolute inset-0 bg-black/50" x-on:click="historyOpen = false"></div>
-        <aside class="relative flex h-full w-72 flex-col gap-1 overflow-y-auto bg-surface p-4 shadow-2xl" x-on:click.outside="historyOpen = false">
+        <aside class="no-scrollbar relative flex h-full w-72 flex-col gap-1 overflow-y-auto bg-surface p-4 shadow-2xl" x-on:click.outside="historyOpen = false">
             <div class="mb-2 flex items-center justify-between">
                 <span class="font-bold text-ink">Chats</span>
                 <button type="button" x-on:click="historyOpen = false" aria-label="Close" class="flex size-11 cursor-pointer items-center justify-center rounded-full text-ink-muted hover:bg-surface-muted">
@@ -205,7 +205,7 @@ new #[Layout('layouts::app')] class extends Component
         </div>
 
         {{-- Scrollable message area --}}
-        <div x-ref="messageList" class="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
+        <div x-ref="messageList" class="no-scrollbar flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
             @if ($messages->isEmpty())
                 <div x-show="pending.length === 0" class="rounded-3xl border border-dashed border-border bg-surface p-8 text-center">
                     <p class="text-ink-muted">Hey, I'm Kairo 👋 Tell me something you're working toward, and I'll help you plan it out.</p>
@@ -258,14 +258,16 @@ new #[Layout('layouts::app')] class extends Component
         </div>
 
         {{-- Input, pinned at the bottom of the chat column --}}
-        <form x-on:submit.prevent="submit()" class="mb-16 flex shrink-0 items-center gap-2 md:mb-0">
-            <input
+        <form x-on:submit.prevent="submit()" class="mb-16 flex shrink-0 items-end gap-2 md:mb-0">
+            <textarea
                 x-ref="input"
-                type="text"
+                rows="1"
                 placeholder="Message Kairo..."
                 autocomplete="off"
-                class="flex-1 rounded-full border border-border bg-surface px-4 py-3 text-ink shadow-lg placeholder:text-ink-muted focus:border-teal focus:ring-2 focus:ring-teal/30 focus:outline-none"
-            >
+                x-on:input="autoResizeInput()"
+                x-on:keydown.enter="if (! $event.shiftKey) { $event.preventDefault(); submit(); }"
+                class="no-scrollbar max-h-40 flex-1 resize-none rounded-3xl border border-border bg-surface px-4 py-3 text-ink shadow-lg placeholder:text-ink-muted focus:border-teal focus:ring-2 focus:ring-teal/30 focus:outline-none"
+            ></textarea>
             <button
                 type="button"
                 x-show="voiceSupported"

@@ -74,6 +74,7 @@ document.addEventListener('alpine:init', () => {
                 }
                 if (this.$refs.input) {
                     this.$refs.input.value = transcript;
+                    this.autoResizeInput();
                 }
             });
 
@@ -132,6 +133,13 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
+        autoResizeInput() {
+            const el = this.$refs.input;
+            if (!el) return;
+            el.style.height = 'auto';
+            el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+        },
+
         submit() {
             const text = this.$refs.input.value.trim();
             if (!text || this.pending.length > 0) return;
@@ -141,6 +149,7 @@ document.addEventListener('alpine:init', () => {
 
             this.pending.push({ id, text });
             this.$refs.input.value = '';
+            this.autoResizeInput();
             this.lastInputWasVoice = false;
 
             this.$nextTick(() => this.scrollToBottom());
