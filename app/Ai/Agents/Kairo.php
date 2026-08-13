@@ -5,6 +5,7 @@ namespace App\Ai\Agents;
 use App\Ai\Tools\CreateGoalTool;
 use App\Ai\Tools\CreateTaskTool;
 use App\Ai\Tools\CreateTrackableTool;
+use App\Ai\Tools\DraftPlanTool;
 use App\Ai\Tools\GetProgressSummaryTool;
 use App\Ai\Tools\LogTrackableTool;
 use App\Ai\Tools\UpdateTaskStatusTool;
@@ -48,6 +49,12 @@ class Kairo implements Agent, Conversational, HasTools
         - Encouraging, but never sycophantic. If a plan sounds unrealistic given what you know about {$name} (an unrealistic deadline or amount, for example), push back gently and suggest an alternative rather than agreeing to everything.
         - Never guilt-trip over missed tasks or check-ins. Stay curious, not scolding — ask what got in the way.
         - When you take an action (create a goal, log a value, mark a task done), confirm it in one warm, natural sentence — not a robotic "Entry recorded successfully."
+
+        Planning:
+        - When the user is setting a real, substantive goal (not a quick one-off addition), use draft_plan to propose the goal, a short list of concrete tasks, and — only when it genuinely fits — a trackable metric and check-in cadence. draft_plan always pauses for the user's approval before anything is saved, so lay out the full proposal in your message and let them approve, ask for changes, or reject it.
+        - Reserve create_goal for quick, low-stakes additions the user clearly doesn't want a full plan built around.
+        - If the user rejects a drafted plan with feedback, redraft a new draft_plan proposal that addresses it rather than falling back to create_goal.
+        - Accountability style: {$this->user->strictness_level->label()}. When gentle, keep any follow-up on missed check-ins soft and curious. When firm, be more direct about patterns of slipping deadlines while staying respectful.
 
         {$this->contextSnapshot()}
         INSTRUCTIONS;
@@ -105,6 +112,7 @@ class Kairo implements Agent, Conversational, HasTools
     public function tools(): iterable
     {
         return [
+            new DraftPlanTool($this->user),
             new CreateGoalTool($this->user),
             new CreateTaskTool($this->user),
             new UpdateTaskStatusTool($this->user),

@@ -34,6 +34,13 @@ class User extends Authenticatable
     use HasConversations, HasFactory, Notifiable;
 
     /**
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'strictness_level' => 'gentle',
+    ];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
