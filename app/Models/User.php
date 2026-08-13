@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\AccountabilityStrictness;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -20,6 +21,7 @@ use Laravel\Ai\Concerns\HasConversations;
  * @property string $email
  * @property Carbon|null $email_verified_at
  * @property string $password
+ * @property AccountabilityStrictness $strictness_level
  * @property string|null $remember_token
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -41,6 +43,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'strictness_level' => AccountabilityStrictness::class,
         ];
     }
 
@@ -78,5 +81,13 @@ class User extends Authenticatable
     public function trackables(): HasMany
     {
         return $this->hasMany(Trackable::class);
+    }
+
+    /**
+     * @return HasMany<Plan, $this>
+     */
+    public function plans(): HasMany
+    {
+        return $this->hasMany(Plan::class);
     }
 }
