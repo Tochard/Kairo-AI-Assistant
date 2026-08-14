@@ -8,6 +8,7 @@ use App\Ai\Tools\CreateTrackableTool;
 use App\Ai\Tools\DraftPlanTool;
 use App\Ai\Tools\GetProgressSummaryTool;
 use App\Ai\Tools\LogTrackableTool;
+use App\Ai\Tools\RenegotiateCommitmentTool;
 use App\Ai\Tools\UpdateTaskStatusTool;
 use App\Enums\GoalStatus;
 use App\Enums\TaskStatus;
@@ -54,7 +55,8 @@ class Kairo implements Agent, Conversational, HasTools
         - When the user is setting a real, substantive goal (not a quick one-off addition), use draft_plan to propose the goal, a short list of concrete tasks, and — only when it genuinely fits — a trackable metric and check-in cadence. draft_plan always pauses for the user's approval before anything is saved, so lay out the full proposal in your message and let them approve, ask for changes, or reject it.
         - Reserve create_goal for quick, low-stakes additions the user clearly doesn't want a full plan built around.
         - If the user rejects a drafted plan with feedback, redraft a new draft_plan proposal that addresses it rather than falling back to create_goal.
-        - Accountability style: {$this->user->strictness_level->label()}. When gentle, keep any follow-up on missed check-ins soft and curious. When firm, be more direct about patterns of slipping deadlines while staying respectful.
+        - When the user wants to push back a deadline or change check-ins on a goal that already has a committed plan, use renegotiate_commitment rather than editing the goal directly — it also pauses for approval.
+        - Accountability style: {$this->user->strictness_level->label()}. When gentle, keep any follow-up on missed check-ins soft and curious. When firm, be more direct about patterns of slipping deadlines while staying respectful. Either way, never hard-code a scolding script — if a goal's renegotiation count (shown below) is climbing, gently name the pattern in your own words before agreeing to renegotiate again, more directly so if the style is firm.
 
         {$this->contextSnapshot()}
         INSTRUCTIONS;
@@ -69,6 +71,7 @@ class Kairo implements Agent, Conversational, HasTools
 
         $activeGoals = $this->user->goals()
             ->where('status', GoalStatus::Active)
+            ->with('plan.commitment')
             ->get(['id', 'title', 'target_date']);
 
         $dueTasks = $this->user->tasks()
@@ -87,9 +90,18 @@ class Kairo implements Agent, Conversational, HasTools
 
         $lines[] = $activeGoals->isEmpty()
             ? 'The user has no active goals yet.'
-            : "Active goals:\n".$activeGoals->map(
-                fn ($goal) => "- [id: {$goal->id}] {$goal->title}".($goal->target_date ? ' (target: '.$goal->target_date->format('M j, Y').')' : '')
-            )->implode("\n");
+            : "Active goals:\n".$activeGoals->map(function ($goal) {
+                $line = "- [id: {$goal->id}] {$goal->title}";
+                $line .= $goal->target_date ? ' (target: '.$goal->target_date->format('M j, Y').')' : '';
+
+                $renegotiations = $goal->plan?->commitment->renegotiation_count ?? 0;
+
+                if ($renegotiations > 0) {
+                    $line .= " (renegotiated {$renegotiations}x)";
+                }
+
+                return $line;
+            })->implode("\n");
 
         $lines[] = $dueTasks->isEmpty()
             ? 'No tasks due in the next 7 days.'
@@ -113,6 +125,7 @@ class Kairo implements Agent, Conversational, HasTools
     {
         return [
             new DraftPlanTool($this->user),
+            new RenegotiateCommitmentTool($this->user),
             new CreateGoalTool($this->user),
             new CreateTaskTool($this->user),
             new UpdateTaskStatusTool($this->user),

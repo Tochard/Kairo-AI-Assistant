@@ -1,6 +1,8 @@
 <?php
 
 use App\Ai\Agents\Kairo;
+use App\Models\Commitment;
+use App\Models\Goal;
 use App\Models\Plan;
 use App\Models\User;
 use Laravel\Ai\Responses\Data\ToolCall;
@@ -130,4 +132,58 @@ test('responding to an approval that no longer matches the pending call is a no-
         ->assertSet('error', "That plan isn't waiting for a decision anymore.");
 
     expect(Plan::count())->toBe(0);
+});
+
+test('a renegotiation card renders when a commitment change is pending approval', function () {
+    $user = User::factory()->create();
+    $goal = Goal::factory()->for($user)->create(['title' => 'Save ₦500k']);
+    $plan = Plan::factory()->for($user)->for($goal)->create();
+    Commitment::factory()->for($plan)->create();
+
+    Kairo::fake([
+        new ToolCall(
+            id: 'call_renegotiate',
+            name: 'RenegotiateCommitmentTool',
+            arguments: ['goal_id' => $goal->id, 'new_target_date' => '2027-03-31'],
+        ),
+    ]);
+
+    $component = Livewire::actingAs($user)
+        ->test('pages::chat')
+        ->call('send', 'Can we push the savings goal back to March?');
+
+    $this->actingAs($user)
+        ->get(route('chat', $component->conversationId))
+        ->assertSee('Save ₦500k')
+        ->assertSee('Renegotiate plan')
+        ->assertSee('2027-03-31');
+});
+
+test('approving a pending renegotiation sends an approve decision for the call', function () {
+    $user = User::factory()->create();
+    $goal = Goal::factory()->for($user)->create();
+    $plan = Plan::factory()->for($user)->for($goal)->create();
+    Commitment::factory()->for($plan)->create();
+
+    Kairo::fake([
+        new ToolCall(
+            id: 'call_renegotiate',
+            name: 'RenegotiateCommitmentTool',
+            arguments: ['goal_id' => $goal->id, 'new_target_date' => '2027-03-31'],
+        ),
+    ]);
+
+    $component = Livewire::actingAs($user)
+        ->test('pages::chat')
+        ->call('send', 'Can we push the savings goal back to March?');
+
+    Kairo::fake(['Done, pushed it back.']);
+
+    $component->call('respondToApproval', 'call_renegotiate', 'approve', null, null)
+        ->assertSet('error', null);
+
+    Kairo::assertPrompted(function ($prompt) {
+        return $prompt->hasApprovalDecisions()
+            && $prompt->approvalDecisions->get('call_renegotiate')->isApproved();
+    });
 });

@@ -1,6 +1,7 @@
 <?php
 
 use App\Ai\Agents\Kairo;
+use App\Models\Goal;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Laravel\Ai\Approvals\Decision;
@@ -199,10 +200,15 @@ new #[Layout('layouts::app')] class extends Component
                 ->get()
             : collect();
 
+        $pendingApproval = $this->pendingApproval();
+
         return [
             'messages' => $messages,
             'conversations' => auth()->user()->conversations()->latest('updated_at')->get(),
-            'pendingApproval' => $this->pendingApproval(),
+            'pendingApproval' => $pendingApproval,
+            'renegotiationGoal' => $pendingApproval && $pendingApproval['tool'] === 'RenegotiateCommitmentTool'
+                ? Goal::find($pendingApproval['arguments']['goal_id'] ?? null)
+                : null,
         ];
     }
 };
@@ -328,6 +334,10 @@ new #[Layout('layouts::app')] class extends Component
             @if ($pendingApproval && $pendingApproval['tool'] === 'DraftPlanTool')
                 <div wire:key="approval-{{ $pendingApproval['callId'] }}" class="flex justify-start">
                     @include('pages.chat.plan-approval-card', ['approval' => $pendingApproval])
+                </div>
+            @elseif ($pendingApproval && $pendingApproval['tool'] === 'RenegotiateCommitmentTool')
+                <div wire:key="approval-{{ $pendingApproval['callId'] }}" class="flex justify-start">
+                    @include('pages.chat.renegotiation-approval-card', ['approval' => $pendingApproval, 'goal' => $renegotiationGoal])
                 </div>
             @endif
 
