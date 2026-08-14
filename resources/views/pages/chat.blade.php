@@ -321,20 +321,6 @@ new #[Layout('layouts::app')] class extends Component
             </button>
         </div>
 
-        <div
-            x-show="speaking"
-            x-cloak
-            x-on:click="stopSpeaking()"
-            class="flex shrink-0 cursor-pointer items-center gap-2 self-start rounded-full border border-teal/30 bg-teal/10 px-3 py-1.5 text-xs font-medium text-teal animate-pulse"
-        >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-3.5">
-                <path d="M4 9v6h4l5 4V5L8 9H4Z" />
-                <path d="M17 9a4 4 0 0 1 0 6" />
-                <path d="M19.5 7a7.5 7.5 0 0 1 0 10" />
-            </svg>
-            Kairo is speaking — tap to stop
-        </div>
-
         {{-- Scrollable message area --}}
         <div x-ref="messageList" class="no-scrollbar flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
             @if ($messages->isEmpty())
@@ -357,6 +343,22 @@ new #[Layout('layouts::app')] class extends Component
                         @endif
                     </div>
                 </div>
+
+                @if ($msg->role === 'assistant' && $loop->last)
+                    <div
+                        x-show="speaking"
+                        x-cloak
+                        x-on:click="stopSpeaking()"
+                        class="flex shrink-0 cursor-pointer items-center gap-2 self-start rounded-full border border-teal/30 bg-teal/10 px-3 py-1.5 text-xs font-medium text-teal animate-pulse"
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-3.5">
+                            <path d="M4 9v6h4l5 4V5L8 9H4Z" />
+                            <path d="M17 9a4 4 0 0 1 0 6" />
+                            <path d="M19.5 7a7.5 7.5 0 0 1 0 10" />
+                        </svg>
+                        Kairo is speaking — tap to stop
+                    </div>
+                @endif
             @endforeach
 
             <template x-for="p in pending" :key="p.id">
