@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Laravel\Ai\Approvals\Decision;
 use Laravel\Ai\Approvals\Decisions;
+use Laravel\Ai\Audio;
+use Laravel\Ai\Enums\Lab;
 use Laravel\Ai\Models\Conversation;
 use Laravel\Ai\Models\ConversationMessage;
 use Livewire\Attributes\Layout;
@@ -183,6 +185,40 @@ new #[Layout('layouts::app')] class extends Component
             $this->error = "I couldn't get a response just now — mind trying again in a moment?";
 
             return ['text' => null, 'conversationId' => $this->conversationId];
+        }
+    }
+
+    /**
+     * Synthesize speech for the given text via Gemini's TTS model.
+     *
+     * @return array{audio: ?string, mime: ?string}
+     */
+    public function speak(string $text): array
+    {
+        $text = trim($text);
+
+        if ($text === '') {
+            return ['audio' => null, 'mime' => null];
+        }
+
+        $key = 'kairo-speak:'.auth()->id();
+
+        if (RateLimiter::tooManyAttempts($key, 30)) {
+            return ['audio' => null, 'mime' => null];
+        }
+
+        RateLimiter::hit($key, 3600);
+
+        try {
+            $audio = Audio::of(Str::limit($text, 3000, ''))
+                ->female()
+                ->generate(provider: Lab::Gemini);
+
+            return ['audio' => $audio->audio, 'mime' => $audio->mimeType()];
+        } catch (\Throwable $e) {
+            report($e);
+
+            return ['audio' => null, 'mime' => null];
         }
     }
 
@@ -375,12 +411,11 @@ new #[Layout('layouts::app')] class extends Component
             ></textarea>
             <button
                 type="button"
-                x-show="voiceSupported"
+                x-show="voiceSupported && ! listening"
                 x-cloak
                 x-on:click="toggleListening()"
-                :class="listening ? 'bg-red-500 text-white' : 'text-ink-muted hover:border-teal hover:text-teal'"
-                class="flex size-12 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border shadow-lg transition"
-                :aria-label="listening ? 'Stop listening' : 'Speak your message'"
+                class="flex size-12 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border text-ink-muted shadow-lg transition hover:border-teal hover:text-teal"
+                aria-label="Speak your message"
             >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-5">
                     <rect x="9" y="3" width="6" height="11" rx="3" />
@@ -390,9 +425,36 @@ new #[Layout('layouts::app')] class extends Component
             </button>
             <button
                 type="submit"
+                x-show="! listening"
                 :disabled="pending.length > 0"
                 class="flex size-12 shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-accent-foreground shadow-lg shadow-teal/20 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
                 aria-label="Send message"
+            >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5">
+                    <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+            </button>
+
+            {{-- While recording, swap in explicit cancel/send controls — the mic keeps listening through pauses until one of these is tapped. --}}
+            <button
+                type="button"
+                x-show="listening"
+                x-cloak
+                x-on:click="cancelListening()"
+                class="flex size-12 shrink-0 cursor-pointer items-center justify-center rounded-full border border-red-400/40 text-red-400 shadow-lg transition hover:bg-red-500/10"
+                aria-label="Cancel recording"
+            >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5">
+                    <path d="M6 6l12 12M18 6L6 18" />
+                </svg>
+            </button>
+            <button
+                type="button"
+                x-show="listening"
+                x-cloak
+                x-on:click="sendListening()"
+                class="flex size-12 shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-accent-foreground shadow-lg shadow-teal/20 transition hover:brightness-110 animate-pulse"
+                aria-label="Send recorded message"
             >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5">
                     <path d="M5 12h14M13 6l6 6-6 6" />

@@ -3,6 +3,7 @@
 use App\Ai\Agents\Kairo;
 use App\Models\User;
 use Illuminate\Support\Facades\RateLimiter;
+use Laravel\Ai\Audio;
 use Laravel\Ai\Models\Conversation;
 use Livewire\Livewire;
 
@@ -217,4 +218,51 @@ test('a user cannot rename another users conversation', function () {
         ->assertForbidden();
 
     expect(Conversation::find($conversationId)->title)->not->toBe('Hijacked title');
+});
+
+test('a user can synthesize speech for a reply', function () {
+    $user = User::factory()->create();
+
+    Audio::fake([base64_encode('fake-wav-bytes')]);
+
+    Livewire::actingAs($user)
+        ->test('pages::chat')
+        ->call('speak', 'Nice, tell me more about that!')
+        ->assertReturned(fn ($result) => $result['audio'] === base64_encode('fake-wav-bytes'));
+
+    Audio::assertGenerated(function ($prompt) {
+        return $prompt->contains('Nice, tell me more about that!') && $prompt->isFemale();
+    });
+});
+
+test('speak returns no audio for blank text', function () {
+    $user = User::factory()->create();
+
+    Audio::fake();
+
+    Livewire::actingAs($user)
+        ->test('pages::chat')
+        ->call('speak', '   ')
+        ->assertReturned(fn ($result) => $result['audio'] === null);
+
+    Audio::assertNothingGenerated();
+});
+
+test('speech synthesis is rate limited per user', function () {
+    $user = User::factory()->create();
+
+    Audio::fake(['fake-audio']);
+
+    RateLimiter::clear('kairo-speak:'.$user->id);
+
+    for ($i = 0; $i < 30; $i++) {
+        RateLimiter::hit('kairo-speak:'.$user->id, 3600);
+    }
+
+    Livewire::actingAs($user)
+        ->test('pages::chat')
+        ->call('speak', 'One more line')
+        ->assertReturned(fn ($result) => $result['audio'] === null);
+
+    Audio::assertNothingGenerated();
 });

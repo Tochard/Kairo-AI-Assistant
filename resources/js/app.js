@@ -55,6 +55,8 @@ document.addEventListener('alpine:init', () => {
         speaking: false,
         lastInputWasVoice: false,
         recognition: null,
+        stoppingIntentionally: false,
+        audioEl: null,
 
         init() {
             this.$nextTick(() => this.scrollToBottom());
@@ -63,7 +65,9 @@ document.addEventListener('alpine:init', () => {
 
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             this.recognition = new SpeechRecognition();
-            this.recognition.continuous = false;
+            // Stay listening through natural pauses in speech — recording only ends when
+            // the user explicitly cancels or sends, not when the browser hears silence.
+            this.recognition.continuous = true;
             this.recognition.interimResults = true;
             this.recognition.lang = 'en-US';
 
@@ -79,6 +83,13 @@ document.addEventListener('alpine:init', () => {
             });
 
             this.recognition.addEventListener('end', () => {
+                // Some browsers end the session on a silence timeout even in continuous
+                // mode — restart automatically unless the user explicitly asked to stop.
+                if (this.listening && !this.stoppingIntentionally) {
+                    this.recognition.start();
+                    return;
+                }
+
                 this.listening = false;
             });
 
@@ -91,33 +102,81 @@ document.addEventListener('alpine:init', () => {
             if (!this.voiceSupported || !this.recognition) return;
 
             if (this.listening) {
-                this.recognition.stop();
-                this.listening = false;
+                this.cancelListening();
                 return;
             }
 
             this.stopSpeaking();
             this.lastInputWasVoice = true;
+            this.stoppingIntentionally = false;
             this.listening = true;
             this.recognition.start();
         },
 
+        cancelListening() {
+            if (!this.recognition) return;
+
+            this.stoppingIntentionally = true;
+            this.recognition.stop();
+            this.listening = false;
+
+            if (this.$refs.input) {
+                this.$refs.input.value = '';
+                this.autoResizeInput();
+            }
+        },
+
+        sendListening() {
+            if (this.recognition) {
+                this.stoppingIntentionally = true;
+                this.recognition.stop();
+            }
+
+            this.listening = false;
+            this.submit();
+        },
+
         speak(text) {
-            if (!('speechSynthesis' in window) || !text) return;
+            if (!text) return;
 
-            window.speechSynthesis.cancel();
+            this.stopSpeaking();
+            this.speaking = true;
 
-            const utterance = new SpeechSynthesisUtterance(this.stripMarkdown(text));
-            utterance.onstart = () => { this.speaking = true; };
-            utterance.onend = () => { this.speaking = false; };
-            utterance.onerror = () => { this.speaking = false; };
+            this.$wire.speak(this.stripMarkdown(text)).then((result) => {
+                if (!result.audio) {
+                    this.speaking = false;
+                    return;
+                }
 
-            window.speechSynthesis.speak(utterance);
+                const url = URL.createObjectURL(this.base64ToBlob(result.audio, result.mime || 'audio/wav'));
+
+                this.audioEl = new Audio(url);
+                this.audioEl.addEventListener('ended', () => { this.speaking = false; URL.revokeObjectURL(url); });
+                this.audioEl.addEventListener('error', () => { this.speaking = false; URL.revokeObjectURL(url); });
+                this.audioEl.play();
+            }).catch(() => {
+                this.speaking = false;
+            });
         },
 
         stopSpeaking() {
-            window.speechSynthesis?.cancel();
+            if (this.audioEl) {
+                this.audioEl.pause();
+                this.audioEl = null;
+            }
+
             this.speaking = false;
+        },
+
+        base64ToBlob(base64, mime) {
+            const binary = atob(base64);
+            const bytes = new Uint8Array(binary.length);
+
+            for (let i = 0; i < binary.length; i++) {
+                bytes[i] = binary.charCodeAt(i);
+            }
+
+            return new Blob([bytes], { type: mime });
         },
 
         stripMarkdown(text) {
