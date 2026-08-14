@@ -400,8 +400,8 @@ new #[Layout('layouts::app')] class extends Component
             Listening…
         </div>
 
-        {{-- Input, pinned at the bottom of the chat column --}}
-        <form x-on:submit.prevent="submit()" class="mb-16 flex shrink-0 items-end gap-2 md:mb-0">
+        {{-- Input, pinned at the bottom of the chat column — record/send controls float inside the composer's bottom-right corner --}}
+        <form x-on:submit.prevent="submit()" class="relative mb-16 shrink-0 md:mb-0">
             <textarea
                 x-ref="input"
                 rows="1"
@@ -409,59 +409,62 @@ new #[Layout('layouts::app')] class extends Component
                 autocomplete="off"
                 x-on:input="autoResizeInput()"
                 x-on:keydown.enter="if (! $event.shiftKey) { $event.preventDefault(); submit(); }"
-                class="no-scrollbar max-h-40 flex-1 resize-none rounded-3xl border border-border bg-surface px-4 py-3 text-ink shadow-lg placeholder:text-ink-muted focus:border-teal focus:ring-2 focus:ring-teal/30 focus:outline-none"
+                class="no-scrollbar max-h-40 w-full resize-none rounded-3xl border border-border bg-surface py-3 pr-28 pl-4 text-ink shadow-lg placeholder:text-ink-muted focus:border-teal focus:ring-2 focus:ring-teal/30 focus:outline-none"
             ></textarea>
-            <button
-                type="button"
-                x-show="voiceSupported && ! listening"
-                x-cloak
-                x-on:click="toggleListening()"
-                class="flex size-12 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border text-ink-muted shadow-lg transition hover:border-teal hover:text-teal"
-                aria-label="Speak your message"
-            >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-5">
-                    <rect x="9" y="3" width="6" height="11" rx="3" />
-                    <path d="M5 11a7 7 0 0 0 14 0" />
-                    <path d="M12 18v3" />
-                </svg>
-            </button>
-            <button
-                type="submit"
-                x-show="! listening"
-                :disabled="pending.length > 0"
-                class="flex size-12 shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-accent-foreground shadow-lg shadow-teal/20 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
-                aria-label="Send message"
-            >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5">
-                    <path d="M5 12h14M13 6l6 6-6 6" />
-                </svg>
-            </button>
 
-            {{-- While recording, swap in explicit cancel/send controls — the mic keeps listening through pauses until one of these is tapped. --}}
-            <button
-                type="button"
-                x-show="listening"
-                x-cloak
-                x-on:click="cancelListening()"
-                class="flex size-12 shrink-0 cursor-pointer items-center justify-center rounded-full border border-red-400/40 text-red-400 shadow-lg transition hover:bg-red-500/10"
-                aria-label="Cancel recording"
-            >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5">
-                    <path d="M6 6l12 12M18 6L6 18" />
-                </svg>
-            </button>
-            <button
-                type="button"
-                x-show="listening"
-                x-cloak
-                x-on:click="sendListening()"
-                class="flex size-12 shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-accent-foreground shadow-lg shadow-teal/20 transition hover:brightness-110 animate-pulse"
-                aria-label="Send recorded message"
-            >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5">
-                    <path d="M5 12h14M13 6l6 6-6 6" />
-                </svg>
-            </button>
+            <div class="absolute right-2 bottom-2 flex items-center gap-1">
+                <button
+                    type="button"
+                    x-show="voiceSupported && ! listening"
+                    x-cloak
+                    x-on:click="toggleListening()"
+                    class="flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-muted transition hover:bg-surface-muted hover:text-teal"
+                    aria-label="Speak your message"
+                >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-5">
+                        <rect x="9" y="3" width="6" height="11" rx="3" />
+                        <path d="M5 11a7 7 0 0 0 14 0" />
+                        <path d="M12 18v3" />
+                    </svg>
+                </button>
+                <button
+                    type="submit"
+                    x-show="! listening"
+                    :disabled="pending.length > 0"
+                    class="flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-accent-foreground shadow transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+                    aria-label="Send message"
+                >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4.5">
+                        <path d="M5 12h14M13 6l6 6-6 6" />
+                    </svg>
+                </button>
+
+                {{-- While recording, swap in explicit cancel/send controls — the mic keeps listening through pauses until one of these is tapped. --}}
+                <button
+                    type="button"
+                    x-show="listening"
+                    x-cloak
+                    x-on:click="cancelListening()"
+                    class="flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-red-400 transition hover:bg-red-500/10"
+                    aria-label="Cancel recording"
+                >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4.5">
+                        <path d="M6 6l12 12M18 6L6 18" />
+                    </svg>
+                </button>
+                <button
+                    type="button"
+                    x-show="listening"
+                    x-cloak
+                    x-on:click="sendListening()"
+                    class="flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-accent text-accent-foreground shadow transition hover:brightness-110 animate-pulse"
+                    aria-label="Send recorded message"
+                >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4.5">
+                        <path d="M5 12h14M13 6l6 6-6 6" />
+                    </svg>
+                </button>
+            </div>
         </form>
     </div>
 </div>
