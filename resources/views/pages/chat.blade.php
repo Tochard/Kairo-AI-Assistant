@@ -304,15 +304,17 @@ new #[Layout('layouts::app')] class extends Component
     {{-- Main chat column --}}
     <div class="flex h-full min-w-0 flex-1 flex-col gap-3">
         <div class="flex shrink-0 items-center justify-between">
-            <div>
-                <h1 class="text-2xl font-bold tracking-tight text-ink">Kairo</h1>
-                <p class="mt-1 text-sm text-ink-muted">Tell me what you're working toward.</p>
-            </div>
+            @if ($messages->isNotEmpty())
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight text-ink">Kairo</h1>
+                    <p class="mt-1 text-sm text-ink-muted">Tell me what you're working toward.</p>
+                </div>
+            @endif
             <button
                 type="button"
                 x-on:click="historyOpen = true"
                 aria-label="Chat history"
-                class="flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border text-ink-muted transition hover:border-teal hover:text-teal md:hidden"
+                class="ml-auto flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border text-ink-muted transition hover:border-teal hover:text-teal md:hidden"
             >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-5">
                     <circle cx="12" cy="12" r="9" />
@@ -324,8 +326,14 @@ new #[Layout('layouts::app')] class extends Component
         {{-- Scrollable message area --}}
         <div x-ref="messageList" class="no-scrollbar flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
             @if ($messages->isEmpty())
-                <div x-show="pending.length === 0" class="rounded-3xl border border-dashed border-border bg-surface p-8 text-center">
-                    <p class="text-ink-muted">Hey, I'm Kairo 👋 Tell me something you're working toward, and I'll help you plan it out.</p>
+                <div x-show="pending.length === 0" class="flex flex-1 flex-col items-center justify-center gap-4 px-4 text-center">
+                    <div>
+                        <h1 class="text-3xl font-bold tracking-tight text-ink sm:text-4xl">Kairo</h1>
+                        <p class="mt-2 text-ink-muted">Tell me what you're working toward.</p>
+                    </div>
+                    <div class="max-w-md rounded-3xl border border-dashed border-border bg-surface p-6">
+                        <p class="text-ink-muted">Hey, I'm Kairo 👋 Tell me something you're working toward, and I'll help you plan it out.</p>
+                    </div>
                 </div>
             @endif
 
