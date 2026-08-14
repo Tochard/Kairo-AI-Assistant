@@ -3,6 +3,8 @@
 use App\Ai\Agents\Kairo;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use Laravel\Ai\Approvals\Decision;
+use Laravel\Ai\Approvals\Decisions;
 use Laravel\Ai\Models\Conversation;
 use Laravel\Ai\Models\ConversationMessage;
 use Livewire\Attributes\Layout;
@@ -45,6 +47,92 @@ new #[Layout('layouts::app')] class extends Component
         return $model
             && $model->participant_type === Conversation::participantType(auth()->user())
             && (string) $model->participant_id === (string) Conversation::participantKey(auth()->user());
+    }
+
+    /**
+     * The single pending tool-call approval on this conversation, if any.
+     *
+     * @return array{callId: string, tool: string, arguments: array<string, mixed>, reason: ?string}|null
+     */
+    protected function pendingApproval(): ?array
+    {
+        if ($this->conversationId === null) {
+            return null;
+        }
+
+        $message = ConversationMessage::query()
+            ->where('conversation_id', $this->conversationId)
+            ->where('role', 'assistant')
+            ->whereNotNull('approval_state')
+            ->latest('created_at')
+            ->first();
+
+        if (! $message) {
+            return null;
+        }
+
+        $pending = $message->approval_state['pending'] ?? [];
+
+        if (empty($pending)) {
+            return null;
+        }
+
+        $callId = array_key_first($pending);
+
+        $toolCall = collect($message->tool_calls ?? [])->firstWhere('id', $callId);
+
+        if (! $toolCall) {
+            return null;
+        }
+
+        return [
+            'callId' => $callId,
+            'tool' => $toolCall['name'],
+            'arguments' => $toolCall['arguments'],
+            'reason' => $pending[$callId],
+        ];
+    }
+
+    /**
+     * Resolve a pending tool-call approval and continue the conversation.
+     *
+     * @param  array<string, mixed>|null  $edits
+     * @return array<string, mixed>
+     */
+    public function respondToApproval(string $callId, string $action, ?array $edits = null, ?string $feedback = null): array
+    {
+        $pending = $this->pendingApproval();
+
+        if (! $pending || $pending['callId'] !== $callId) {
+            $this->error = "That plan isn't waiting for a decision anymore.";
+
+            return ['text' => null, 'conversationId' => $this->conversationId];
+        }
+
+        $decision = match ($action) {
+            'approve' => Decision::approve(),
+            'reject' => Decision::reject($feedback),
+            'edit' => Decision::edit([...$pending['arguments'], ...($edits ?? [])]),
+            default => null,
+        };
+
+        abort_if($decision === null, 422);
+
+        $this->error = null;
+
+        try {
+            $response = (new Kairo(auth()->user()))
+                ->continue($this->conversationId, as: auth()->user())
+                ->prompt(Decisions::from([$callId => $decision]));
+
+            return ['text' => $response->text, 'conversationId' => $this->conversationId];
+        } catch (\Throwable $e) {
+            report($e);
+
+            $this->error = "I couldn't process that just now — mind trying again in a moment?";
+
+            return ['text' => null, 'conversationId' => $this->conversationId];
+        }
     }
 
     /**
@@ -114,6 +202,7 @@ new #[Layout('layouts::app')] class extends Component
         return [
             'messages' => $messages,
             'conversations' => auth()->user()->conversations()->latest('updated_at')->get(),
+            'pendingApproval' => $this->pendingApproval(),
         ];
     }
 };
@@ -235,6 +324,12 @@ new #[Layout('layouts::app')] class extends Component
                     </div>
                 </div>
             </template>
+
+            @if ($pendingApproval && $pendingApproval['tool'] === 'DraftPlanTool')
+                <div wire:key="approval-{{ $pendingApproval['callId'] }}" class="flex justify-start">
+                    @include('pages.chat.plan-approval-card', ['approval' => $pendingApproval])
+                </div>
+            @endif
 
             <div x-show="pending.length > 0" x-cloak class="flex justify-start">
                 <div class="flex items-center gap-1.5 rounded-2xl border border-border bg-surface px-4 py-3">
